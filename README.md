@@ -1,2 +1,0 @@
-# rentracker
-Jagannath niwas
