@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Mom's Rent & Bill Book</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -11,7 +11,7 @@
   <!-- Google Font Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
   <script>
     tailwind.config = {
@@ -22,12 +22,12 @@
           },
           colors: {
             brand: {
-              50: '#f0fdf4',
-              100: '#dcfce7',
-              500: '#22c55e',
-              600: '#16a34a',
-              700: '#15803d',
-              800: '#166534',
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+              800: '#065f46',
             }
           }
         }
@@ -36,7 +36,44 @@
   </script>
 
   <style>
+    /* Mobile app container styling */
+    body {
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      background-color: #0f172a; /* Slate 900 background on desktop frames the phone */
+    }
+    .mobile-screen {
+      max-width: 480px;
+      margin-left: auto;
+      margin-right: auto;
+      min-height: 100vh;
+      background-color: #f8fafc;
+      position: relative;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+    }
+    /* Hide scrollbar for clean app experience */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    /* Touch friendly active buttons */
+    button:active, .touch-active:active {
+      transform: scale(0.97);
+      transition: transform 0.1s ease;
+    }
     @media print {
+      body {
+        background-color: #ffffff !important;
+      }
+      .mobile-screen {
+        max-width: 100% !important;
+        box-shadow: none !important;
+      }
       body * {
         visibility: hidden;
       }
@@ -49,709 +86,575 @@
         top: 0;
         width: 100%;
         margin: 0;
-        padding: 20px;
-        box-shadow: none;
+        padding: 16px;
       }
       .no-print {
         display: none !important;
       }
     }
-    /* Smooth Transitions */
-    .tab-btn.active {
-      background-color: #16a34a;
-      color: #ffffff;
-      box-shadow: 0 4px 6px -1px rgba(22, 163, 74, 0.3);
-    }
   </style>
 </head>
 
-<body class="bg-slate-50 text-slate-800 min-h-screen font-sans antialiased flex flex-col">
+<body class="font-sans antialiased text-slate-800 flex justify-center items-center min-h-screen">
 
-  <!-- Floating Toast Notification System -->
-  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+  <div class="mobile-screen w-full">
 
-  <!-- Confirmation Modal (No alerts/confirms) -->
-  <div id="confirm-modal" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 text-center transform transition-all">
-      <div class="w-14 h-14 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
-        <i class="fa-solid fa-triangle-exclamation"></i>
-      </div>
-      <h3 id="confirm-title" class="text-xl font-bold text-slate-800 mb-2">Are you sure?</h3>
-      <p id="confirm-message" class="text-slate-600 text-sm mb-6">This action cannot be undone.</p>
-      <div class="flex gap-3 justify-center">
-        <button id="confirm-cancel-btn" class="px-5 py-2.5 rounded-xl border border-slate-300 font-semibold text-slate-700 hover:bg-slate-100 transition">Cancel</button>
-        <button id="confirm-ok-btn" class="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 font-semibold text-white shadow-md transition">Yes, Delete</button>
+    <!-- Toast Floating Alert -->
+    <div id="toast-container" class="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 w-11/12 max-w-sm pointer-events-none"></div>
+
+    <!-- Confirm / Delete Dialog Modal -->
+    <div id="confirm-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs hidden items-end sm:items-center justify-center p-4">
+      <div class="bg-white rounded-3xl w-full max-w-sm p-5 shadow-2xl border border-slate-100 text-center transform transition-all mb-4 sm:mb-0">
+        <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-3 text-xl">
+          <i class="fa-solid fa-trash"></i>
+        </div>
+        <h3 id="confirm-title" class="text-lg font-bold text-slate-900 mb-1">Confirm Action</h3>
+        <p id="confirm-message" class="text-slate-600 text-xs mb-5">This action cannot be undone.</p>
+        <div class="grid grid-cols-2 gap-3">
+          <button id="confirm-cancel-btn" class="w-full py-3 rounded-2xl bg-slate-100 font-bold text-slate-700 text-sm hover:bg-slate-200">Cancel</button>
+          <button id="confirm-ok-btn" class="w-full py-3 rounded-2xl bg-rose-600 font-bold text-white text-sm shadow-md shadow-rose-200">Delete</button>
+        </div>
       </div>
     </div>
-  </div>
 
-  <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-3">
-      <div class="flex items-center space-x-3">
-        <div class="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center text-white text-xl shadow-md shadow-emerald-200">
+    <!-- Top Mobile App Bar -->
+    <header class="bg-emerald-600 text-white px-4 py-3 sticky top-0 z-40 shadow-sm flex items-center justify-between">
+      <div class="flex items-center space-x-2.5">
+        <div class="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center text-white text-lg backdrop-blur-xs">
           <i class="fa-solid fa-house-chimney-user"></i>
         </div>
         <div>
-          <h1 class="text-xl font-bold text-slate-900 leading-tight">Mom's Rent & Bill Book</h1>
-          <p class="text-xs text-slate-500 font-medium">Simple Tenant, Rent & Electricity Ledger</p>
+          <h1 class="text-base font-extrabold leading-tight tracking-tight" id="header-app-title">Mom's Rent Book</h1>
+          <p class="text-[11px] text-emerald-100 font-medium leading-none mt-0.5">Rent & Electricity Ledger</p>
         </div>
       </div>
-
-      <!-- Quick Action Right Header -->
-      <div class="flex items-center space-x-2">
-        <button onclick="switchTab('record')" class="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-600 text-white font-semibold text-sm hover:bg-emerald-700 transition shadow-sm">
-          <i class="fa-solid fa-plus"></i>
-          <span>New Monthly Bill</span>
-        </button>
-        <button onclick="switchTab('tenants')" class="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-100 text-slate-700 font-medium text-sm hover:bg-slate-200 transition">
-          <i class="fa-solid fa-user-plus"></i>
-          <span class="hidden sm:inline">Add Tenant</span>
+      <div class="flex items-center space-x-1.5">
+        <button onclick="switchTab('record')" title="Add Bill" class="w-8 h-8 rounded-full bg-white text-emerald-700 font-bold flex items-center justify-center shadow-xs">
+          <i class="fa-solid fa-plus text-sm"></i>
         </button>
       </div>
-    </div>
+    </header>
 
-    <!-- Navigation Tabs -->
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 flex space-x-2 overflow-x-auto py-2 border-t border-slate-100 text-sm font-medium">
-      <button onclick="switchTab('dashboard')" id="tab-dashboard" class="tab-btn active px-4 py-2 rounded-xl transition flex items-center gap-2 whitespace-nowrap">
-        <i class="fa-solid fa-chart-pie"></i> Dashboard
-      </button>
-      <button onclick="switchTab('record')" id="tab-record" class="tab-btn px-4 py-2 rounded-xl text-slate-600 hover:bg-slate-100 transition flex items-center gap-2 whitespace-nowrap">
-        <i class="fa-solid fa-file-invoice-dollar"></i> Add Monthly Bill
-      </button>
-      <button onclick="switchTab('history')" id="tab-history" class="tab-btn px-4 py-2 rounded-xl text-slate-600 hover:bg-slate-100 transition flex items-center gap-2 whitespace-nowrap">
-        <i class="fa-solid fa-receipt"></i> All Bills & Receipts
-      </button>
-      <button onclick="switchTab('tenants')" id="tab-tenants" class="tab-btn px-4 py-2 rounded-xl text-slate-600 hover:bg-slate-100 transition flex items-center gap-2 whitespace-nowrap">
-        <i class="fa-solid fa-users"></i> Tenants List
-      </button>
-      <button onclick="switchTab('settings')" id="tab-settings" class="tab-btn px-4 py-2 rounded-xl text-slate-600 hover:bg-slate-100 transition flex items-center gap-2 whitespace-nowrap">
-        <i class="fa-solid fa-gear"></i> Settings & Backup
-      </button>
-    </div>
-  </header>
+    <!-- Main Content Area -->
+    <main class="flex-1 overflow-y-auto px-4 py-4 pb-24 space-y-4">
 
-  <main class="max-w-6xl mx-auto px-4 sm:px-6 py-6 w-full flex-grow">
+      <!-- ==============================================
+           TAB 1: MOBILE DASHBOARD
+           ============================================== -->
+      <section id="view-dashboard" class="space-y-4">
 
-    <!-- ==============================================
-         TAB 1: DASHBOARD & MONTHLY OVERVIEW
-         ============================================== -->
-    <section id="view-dashboard" class="space-y-6">
-      
-      <!-- Quick Filter Bar -->
-      <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Viewing Month</span>
-          <div class="flex items-center gap-2 mt-1">
-            <input type="month" id="dashboard-month-filter" onchange="renderDashboard()" class="border border-slate-300 rounded-xl px-3 py-1.5 font-semibold text-slate-800 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
-            <button onclick="setDashboardCurrentMonth()" class="text-xs text-emerald-700 bg-emerald-50 px-2.5 py-1.5 rounded-lg hover:bg-emerald-100 font-medium">This Month</button>
+        <!-- Month Selector Bar -->
+        <div class="bg-white rounded-2xl p-3 border border-slate-200 shadow-xs flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <span class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center text-xs">
+              <i class="fa-regular fa-calendar"></i>
+            </span>
+            <input type="month" id="dashboard-month-filter" onchange="renderDashboard()" class="border-0 bg-transparent font-bold text-slate-800 text-sm focus:outline-none cursor-pointer">
           </div>
-        </div>
-        <div class="flex items-center gap-3">
-          <span class="text-sm text-slate-600">Total Tenants: <strong id="dash-tenant-count" class="text-slate-900 text-base">0</strong></span>
-        </div>
-      </div>
-
-      <!-- KPI Summary Cards -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <!-- Expected Total -->
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden">
-          <div class="flex justify-between items-start">
-            <div>
-              <p class="text-xs font-semibold uppercase text-slate-500 tracking-wider">Total Billed</p>
-              <h3 id="stat-total-billed" class="text-2xl font-bold text-slate-900 mt-1">₹0</h3>
-              <p class="text-xs text-slate-500 mt-1">Rent + Electricity combined</p>
-            </div>
-            <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-lg">
-              <i class="fa-solid fa-coins"></i>
-            </div>
-          </div>
-        </div>
-
-        <!-- Received / Paid -->
-        <div class="bg-white p-5 rounded-2xl border border-emerald-100 bg-emerald-50/20 shadow-sm relative overflow-hidden">
-          <div class="flex justify-between items-start">
-            <div>
-              <p class="text-xs font-semibold uppercase text-emerald-700 tracking-wider">Total Received</p>
-              <h3 id="stat-total-received" class="text-2xl font-bold text-emerald-700 mt-1">₹0</h3>
-              <p id="stat-paid-count" class="text-xs text-emerald-600 font-medium mt-1">0 bills paid</p>
-            </div>
-            <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-lg">
-              <i class="fa-solid fa-circle-check"></i>
-            </div>
-          </div>
-        </div>
-
-        <!-- Pending / Unpaid -->
-        <div class="bg-white p-5 rounded-2xl border border-amber-100 bg-amber-50/20 shadow-sm relative overflow-hidden">
-          <div class="flex justify-between items-start">
-            <div>
-              <p class="text-xs font-semibold uppercase text-amber-700 tracking-wider">Pending Balance</p>
-              <h3 id="stat-total-pending" class="text-2xl font-bold text-amber-600 mt-1">₹0</h3>
-              <p id="stat-pending-count" class="text-xs text-amber-600 font-medium mt-1">0 pending</p>
-            </div>
-            <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center text-lg">
-              <i class="fa-solid fa-clock-rotate-left"></i>
-            </div>
-          </div>
-        </div>
-
-        <!-- Electricity Units Total -->
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden">
-          <div class="flex justify-between items-start">
-            <div>
-              <p class="text-xs font-semibold uppercase text-slate-500 tracking-wider">Power Used</p>
-              <h3 id="stat-total-units" class="text-2xl font-bold text-amber-700 mt-1">0 <span class="text-sm font-normal text-slate-600">units</span></h3>
-              <p id="stat-power-amt" class="text-xs text-slate-500 mt-1">₹0 electricity bill</p>
-            </div>
-            <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg">
-              <i class="fa-solid fa-bolt"></i>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Month Breakdown Table for Each Tenant -->
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div class="p-5 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h2 class="text-lg font-bold text-slate-900">Tenant Status For Selected Month</h2>
-            <p class="text-xs text-slate-500">Overview of who has paid and whose bill is pending</p>
-          </div>
-          <button onclick="switchTab('record')" class="text-sm font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-3.5 py-1.5 rounded-xl transition">
-            + Record Bill
+          <button onclick="setDashboardCurrentMonth()" class="text-[11px] bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-lg font-bold">
+            Current
           </button>
         </div>
 
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-sm">
-            <thead class="bg-slate-50 text-slate-500 font-medium text-xs uppercase border-b border-slate-100">
-              <tr>
-                <th class="px-5 py-3.5">Room & Tenant</th>
-                <th class="px-4 py-3.5">Base Rent</th>
-                <th class="px-4 py-3.5">Electricity (Units)</th>
-                <th class="px-4 py-3.5">Total Bill</th>
-                <th class="px-4 py-3.5">Status</th>
-                <th class="px-5 py-3.5 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody id="dashboard-tenants-tbody" class="divide-y divide-slate-100">
-              <!-- Dynamically Populated -->
-            </tbody>
-          </table>
-        </div>
-        <div id="dash-empty-message" class="hidden p-8 text-center text-slate-500">
-          <i class="fa-regular fa-folder-open text-4xl mb-2 text-slate-300"></i>
-          <p>No records found for this month.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- ==============================================
-         TAB 2: ADD / EDIT MONTHLY BILL ENTRY
-         ============================================== -->
-    <section id="view-record" class="hidden max-w-3xl mx-auto">
-      <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm">
-        <div class="border-b border-slate-100 pb-5 mb-6 flex items-center justify-between">
-          <div>
-            <h2 class="text-2xl font-bold text-slate-900" id="bill-form-title">Enter Monthly Bill</h2>
-            <p class="text-sm text-slate-500">Calculate electricity meter reading and rent for this month</p>
+        <!-- Metric Cards 2x2 Grid -->
+        <div class="grid grid-cols-2 gap-2.5">
+          <!-- Total Collected -->
+          <div class="bg-emerald-600 text-white p-3.5 rounded-2xl shadow-xs">
+            <div class="flex items-center justify-between text-xs opacity-90">
+              <span class="font-medium">Collected</span>
+              <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <div id="stat-total-received" class="text-xl font-black mt-1">₹0</div>
+            <div id="stat-paid-count" class="text-[10px] text-emerald-100 mt-0.5">0 paid bills</div>
           </div>
-          <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold">Step-by-Step Easy</span>
+
+          <!-- Total Pending -->
+          <div class="bg-amber-500 text-white p-3.5 rounded-2xl shadow-xs">
+            <div class="flex items-center justify-between text-xs opacity-90">
+              <span class="font-medium">Pending</span>
+              <i class="fa-solid fa-clock-rotate-left"></i>
+            </div>
+            <div id="stat-total-pending" class="text-xl font-black mt-1">₹0</div>
+            <div id="stat-pending-count" class="text-[10px] text-amber-100 mt-0.5">0 pending</div>
+          </div>
+
+          <!-- Total Billed -->
+          <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-xs">
+            <div class="flex items-center justify-between text-xs text-slate-400">
+              <span class="font-medium text-slate-500">Total Billed</span>
+              <i class="fa-solid fa-receipt text-blue-500"></i>
+            </div>
+            <div id="stat-total-billed" class="text-lg font-bold text-slate-800 mt-1">₹0</div>
+            <div class="text-[10px] text-slate-400 mt-0.5">Rent + Electricity</div>
+          </div>
+
+          <!-- Total Power Units -->
+          <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-xs">
+            <div class="flex items-center justify-between text-xs text-slate-400">
+              <span class="font-medium text-slate-500">Electricity</span>
+              <i class="fa-solid fa-bolt text-amber-500"></i>
+            </div>
+            <div id="stat-total-units" class="text-lg font-bold text-slate-800 mt-1">0 <span class="text-xs font-normal">units</span></div>
+            <div id="stat-power-amt" class="text-[10px] text-slate-400 mt-0.5">₹0 total power</div>
+          </div>
         </div>
 
-        <form id="monthly-bill-form" onsubmit="saveBillEntry(event)" class="space-y-6">
-          <input type="hidden" id="entry-id" value="">
+        <!-- Tenant List For This Month -->
+        <div>
+          <div class="flex items-center justify-between mb-2 px-1">
+            <h2 class="text-xs font-bold text-slate-500 uppercase tracking-wider">Tenants Status This Month</h2>
+            <span class="text-xs text-slate-400" id="dash-tenant-count">0 Tenants</span>
+          </div>
 
-          <!-- Row 1: Tenant & Month Selection -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- Dynamic List of Cards (Mobile Friendly instead of heavy table) -->
+          <div id="dashboard-tenants-list" class="space-y-2.5">
+            <!-- Rendered by JS -->
+          </div>
+
+          <!-- Empty prompt -->
+          <div id="dash-empty-message" class="hidden bg-white p-6 rounded-2xl border border-slate-200 text-center">
+            <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center text-xl mx-auto mb-2">
+              <i class="fa-solid fa-user-plus"></i>
+            </div>
+            <h3 class="font-bold text-slate-800 text-sm">No tenants added yet</h3>
+            <p class="text-xs text-slate-500 mt-1 mb-3">Add your first tenant room to start tracking rent and electricity.</p>
+            <button onclick="openTenantModal()" class="px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold shadow-xs">
+              + Add First Tenant
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==============================================
+           TAB 2: ADD / EDIT BILL (MOBILE DESIGN)
+           ============================================== -->
+      <section id="view-record" class="hidden space-y-3.5">
+        <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-3">
             <div>
-              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                1. Select Tenant <span class="text-rose-500">*</span>
-              </label>
-              <select id="bill-tenant-select" required onchange="onTenantSelectionChange()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-800 font-medium focus:ring-2 focus:ring-emerald-500 focus:bg-white focus:outline-none">
-                <option value="">-- Choose Tenant / Room --</option>
+              <h2 class="text-base font-bold text-slate-900" id="bill-form-title">Enter Monthly Bill</h2>
+              <p class="text-[11px] text-slate-500">Auto-calculates power units and total</p>
+            </div>
+            <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">Easy Input</span>
+          </div>
+
+          <form id="monthly-bill-form" onsubmit="saveBillEntry(event)" class="space-y-3.5">
+            <input type="hidden" id="entry-id" value="">
+
+            <!-- Step 1: Tenant & Month -->
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">1. Select Tenant / Room *</label>
+              <select id="bill-tenant-select" required onchange="onTenantSelectionChange()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-800 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                <option value="">-- Choose Tenant --</option>
               </select>
-              <p class="text-xs text-slate-400 mt-1.5">Can't find tenant? Add them in "Tenants List" tab first.</p>
             </div>
 
             <div>
-              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                2. Billing Month & Year <span class="text-rose-500">*</span>
-              </label>
-              <input type="month" id="bill-month" required onchange="onBillMonthChange()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-800 font-medium focus:ring-2 focus:ring-emerald-500 focus:bg-white focus:outline-none">
+              <label class="block text-xs font-bold text-slate-700 mb-1">2. Billing Month *</label>
+              <input type="month" id="bill-month" required onchange="onBillMonthChange()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-800 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none">
             </div>
-          </div>
 
-          <!-- Row 2: Rent and Electricity Rate Setting -->
-          <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-4">
-            <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
-              <i class="fa-solid fa-money-bill-wave text-emerald-600"></i> Monthly Base Rent
-            </h3>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label class="block text-xs font-medium text-slate-600 mb-1">Room Base Rent (<span class="currency-symbol">₹</span>)</label>
-                <div class="relative">
-                  <span class="absolute left-3.5 top-3 text-slate-400 font-bold currency-symbol">₹</span>
-                  <input type="number" id="bill-rent" step="any" min="0" required oninput="calculateBillTotals()" class="w-full pl-8 pr-4 py-2.5 bg-white border border-slate-300 rounded-xl font-bold text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:outline-none" placeholder="0">
+            <!-- Step 2: Rent & Maintenance -->
+            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2.5">
+              <span class="text-xs font-bold text-slate-700 block"><i class="fa-solid fa-house text-emerald-600 mr-1"></i> Rent Details</span>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="text-[11px] text-slate-500 block mb-0.5">Base Rent (<span class="currency-symbol">₹</span>)</label>
+                  <input type="number" id="bill-rent" step="any" min="0" required oninput="calculateBillTotals()" class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-2 text-sm font-bold text-slate-900 focus:outline-none" placeholder="0">
                 </div>
-              </div>
-              <div>
-                <label class="block text-xs font-medium text-slate-600 mb-1">Water / Maintenance / Other (<span class="currency-symbol">₹</span>)</label>
-                <div class="relative">
-                  <span class="absolute left-3.5 top-3 text-slate-400 font-bold currency-symbol">₹</span>
-                  <input type="number" id="bill-maintenance" step="any" min="0" value="0" oninput="calculateBillTotals()" class="w-full pl-8 pr-4 py-2.5 bg-white border border-slate-300 rounded-xl font-semibold text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:outline-none" placeholder="0">
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Row 3: Electricity Meter Calculator Card -->
-          <div class="p-5 rounded-2xl bg-amber-50/50 border border-amber-200/80 space-y-4">
-            <div class="flex items-center justify-between">
-              <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
-                <i class="fa-solid fa-bolt text-amber-500"></i> Electricity Calculation (Sub-meter)
-              </h3>
-              <div class="flex items-center gap-2 text-xs">
-                <span class="text-slate-600 font-medium">Rate / Unit:</span>
-                <div class="flex items-center">
-                  <span class="currency-symbol font-bold mr-1 text-slate-700">₹</span>
-                  <input type="number" id="bill-unit-rate" step="0.1" min="0" oninput="calculateBillTotals()" class="w-16 bg-white border border-slate-300 rounded-lg px-2 py-1 font-bold text-slate-800 text-center focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                <div>
+                  <label class="text-[11px] text-slate-500 block mb-0.5">Water / Extra (<span class="currency-symbol">₹</span>)</label>
+                  <input type="number" id="bill-maintenance" step="any" min="0" value="0" oninput="calculateBillTotals()" class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-2 text-sm font-semibold text-slate-800 focus:outline-none" placeholder="0">
                 </div>
               </div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div>
-                <label class="block text-xs font-medium text-slate-600 mb-1">Previous Meter Reading</label>
-                <input type="number" id="bill-prev-meter" step="any" min="0" required oninput="calculateBillTotals()" class="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl font-semibold text-slate-800 focus:ring-2 focus:ring-amber-500 focus:outline-none" placeholder="e.g. 1420">
-                <p id="prev-reading-hint" class="text-[11px] text-slate-500 mt-1">Auto-fetched from last bill</p>
-              </div>
-
-              <div>
-                <label class="block text-xs font-medium text-slate-600 mb-1">Current Meter Reading</label>
-                <input type="number" id="bill-curr-meter" step="any" min="0" required oninput="calculateBillTotals()" class="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl font-semibold text-slate-800 focus:ring-2 focus:ring-amber-500 focus:outline-none" placeholder="e.g. 1540">
-                <p class="text-[11px] text-slate-500 mt-1">Read from meter</p>
-              </div>
-
-              <div>
-                <label class="block text-xs font-medium text-slate-600 mb-1">Units Consumed</label>
-                <div class="px-3.5 py-2.5 bg-amber-100/60 border border-amber-200 rounded-xl font-bold text-amber-900 flex justify-between items-center">
-                  <span id="bill-calc-units">0</span>
-                  <span class="text-xs font-semibold text-amber-700">Units</span>
+            <!-- Step 3: Electricity Sub-Meter -->
+            <div class="p-3 bg-amber-50/60 rounded-xl border border-amber-200 space-y-2.5">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-amber-900"><i class="fa-solid fa-bolt text-amber-500 mr-1"></i> Meter Readings</span>
+                <div class="flex items-center text-xs gap-1">
+                  <span class="text-slate-500">Rate:</span>
+                  <span class="currency-symbol font-bold">₹</span>
+                  <input type="number" id="bill-unit-rate" step="0.1" min="0" oninput="calculateBillTotals()" class="w-14 bg-white border border-slate-300 rounded px-1 py-0.5 text-center font-bold text-slate-800">
                 </div>
-                <p class="text-[11px] text-slate-500 mt-1">(Current - Previous)</p>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="text-[11px] text-slate-600 block mb-0.5">Previous Reading</label>
+                  <input type="number" id="bill-prev-meter" step="any" min="0" required oninput="calculateBillTotals()" class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-2 text-sm font-bold text-slate-800 focus:outline-none" placeholder="1200">
+                </div>
+                <div>
+                  <label class="text-[11px] text-slate-600 block mb-0.5">Current Reading</label>
+                  <input type="number" id="bill-curr-meter" step="any" min="0" required oninput="calculateBillTotals()" class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-2 text-sm font-bold text-slate-800 focus:outline-none" placeholder="1340">
+                </div>
+              </div>
+
+              <div class="bg-white p-2.5 rounded-lg border border-amber-200 flex items-center justify-between text-xs">
+                <div>
+                  <span class="text-slate-500">Units Consumed: </span>
+                  <strong id="bill-calc-units" class="text-amber-800 font-bold text-sm">0</strong>
+                </div>
+                <div>
+                  <span class="text-slate-500">Power Bill: </span>
+                  <strong id="bill-electricity-total" class="text-amber-800 font-bold text-sm">₹0</strong>
+                </div>
               </div>
             </div>
 
-            <!-- Total Electricity Bill Display -->
-            <div class="bg-white p-3 rounded-xl border border-amber-200 flex justify-between items-center text-sm">
-              <span class="text-slate-600 font-medium">Calculated Power Bill:</span>
-              <span class="font-bold text-amber-700 text-base" id="bill-electricity-total">₹0</span>
-            </div>
-          </div>
-
-          <!-- Row 4: Total Amount & Payment Status -->
-          <div class="bg-emerald-50 rounded-2xl p-5 border border-emerald-200">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div>
-                <span class="text-xs font-bold text-emerald-800 uppercase tracking-wide">Total Amount Payable</span>
-                <div class="text-3xl font-extrabold text-emerald-800 mt-1" id="bill-grand-total">₹0</div>
-                <p class="text-xs text-emerald-700 mt-0.5">Rent + Electricity + Maintenance</p>
-              </div>
-
-              <div class="space-y-2">
-                <label class="block text-xs font-bold text-emerald-900 uppercase">Payment Status</label>
-                <div class="flex items-center gap-3">
-                  <label class="flex items-center gap-2 bg-white px-3.5 py-2 rounded-xl border border-emerald-300 cursor-pointer text-sm font-semibold text-emerald-900 shadow-xs">
+            <!-- Step 4: Total & Payment Status -->
+            <div class="p-3.5 bg-emerald-50 rounded-xl border border-emerald-200 space-y-3">
+              <div class="flex items-center justify-between">
+                <div>
+                  <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-800">Total Payable</span>
+                  <div class="text-2xl font-black text-emerald-800 leading-tight" id="bill-grand-total">₹0</div>
+                </div>
+                <!-- Status Radios -->
+                <div class="flex gap-1.5 bg-white p-1 rounded-xl border border-emerald-300">
+                  <label class="px-2.5 py-1 rounded-lg text-xs font-bold cursor-pointer flex items-center gap-1 text-emerald-800">
                     <input type="radio" name="payment-status" value="Paid" checked onchange="togglePaymentFields()">
-                    <span><i class="fa-solid fa-check text-emerald-600 mr-1"></i> Paid</span>
+                    <span>Paid</span>
                   </label>
-                  <label class="flex items-center gap-2 bg-white px-3.5 py-2 rounded-xl border border-slate-300 cursor-pointer text-sm font-semibold text-amber-700 shadow-xs">
+                  <label class="px-2.5 py-1 rounded-lg text-xs font-bold cursor-pointer flex items-center gap-1 text-amber-700">
                     <input type="radio" name="payment-status" value="Pending" onchange="togglePaymentFields()">
-                    <span><i class="fa-solid fa-clock text-amber-600 mr-1"></i> Pending</span>
+                    <span>Pending</span>
                   </label>
                 </div>
               </div>
-            </div>
 
-            <!-- Payment Details (Date & Mode) -->
-            <div id="payment-details-row" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4 pt-4 border-t border-emerald-200">
-              <div>
-                <label class="block text-xs font-medium text-emerald-900 mb-1">Payment Date</label>
-                <input type="date" id="bill-paid-date" class="w-full bg-white border border-emerald-300 rounded-xl px-3 py-2 text-sm text-slate-800 focus:outline-none">
+              <!-- Payment details -->
+              <div id="payment-details-row" class="grid grid-cols-2 gap-2 pt-2 border-t border-emerald-200/60">
+                <div>
+                  <label class="text-[10px] font-bold text-emerald-900 block mb-0.5">Paid Date</label>
+                  <input type="date" id="bill-paid-date" class="w-full bg-white border border-emerald-300 rounded-lg px-2 py-1.5 text-xs">
+                </div>
+                <div>
+                  <label class="text-[10px] font-bold text-emerald-900 block mb-0.5">Mode</label>
+                  <select id="bill-paid-mode" class="w-full bg-white border border-emerald-300 rounded-lg px-2 py-1.5 text-xs font-medium">
+                    <option value="Cash">Cash</option>
+                    <option value="Google Pay / UPI">UPI / GPay / PhonePe</option>
+                    <option value="Bank Transfer">Bank Transfer</option>
+                    <option value="Cheque">Cheque</option>
+                  </select>
+                </div>
               </div>
+
               <div>
-                <label class="block text-xs font-medium text-emerald-900 mb-1">Payment Mode</label>
-                <select id="bill-paid-mode" class="w-full bg-white border border-emerald-300 rounded-xl px-3 py-2 text-sm text-slate-800 focus:outline-none font-medium">
-                  <option value="Cash">Cash</option>
-                  <option value="Google Pay / UPI">Google Pay / PhonePe / UPI</option>
-                  <option value="Bank Transfer">Bank Transfer / NEFT</option>
-                  <option value="Cheque">Cheque</option>
-                </select>
+                <input type="text" id="bill-notes" placeholder="Notes (e.g. ₹500 advance kept)" class="w-full bg-white border border-emerald-300 rounded-lg px-2.5 py-1.5 text-xs">
               </div>
             </div>
 
-            <div class="mt-3">
-              <label class="block text-xs font-medium text-emerald-900 mb-1">Optional Notes</label>
-              <input type="text" id="bill-notes" placeholder="e.g. Paid in 2 parts, or ₹500 advance kept" class="w-full bg-white border border-emerald-300 rounded-xl px-3 py-2 text-sm text-slate-800 focus:outline-none">
+            <!-- Action buttons -->
+            <div class="grid grid-cols-2 gap-2 pt-1">
+              <button type="button" onclick="cancelBillEdit()" class="w-full py-3 rounded-xl bg-slate-100 font-bold text-slate-700 text-xs">Cancel</button>
+              <button type="submit" class="w-full py-3 rounded-xl bg-emerald-600 font-bold text-white text-xs shadow-md shadow-emerald-200">Save Bill</button>
             </div>
-          </div>
+          </form>
+        </div>
+      </section>
 
-          <!-- Buttons -->
-          <div class="flex items-center justify-end gap-3 pt-2">
-            <button type="button" onclick="cancelBillEdit()" class="px-5 py-3 rounded-xl border border-slate-300 text-slate-700 font-semibold hover:bg-slate-100 transition">
-              Cancel
-            </button>
-            <button type="submit" class="px-7 py-3 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 transition shadow-lg shadow-emerald-200 flex items-center gap-2">
-              <i class="fa-solid fa-floppy-disk"></i>
-              <span>Save Record</span>
-            </button>
-          </div>
-        </form>
-      </div>
-    </section>
-
-    <!-- ==============================================
-         TAB 3: ALL BILLS & RECEIPTS (HISTORY)
-         ============================================== -->
-    <section id="view-history" class="hidden space-y-5">
-      <!-- Search & Filters -->
-      <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-4">
-        <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto">
-          <!-- Filter by Tenant -->
-          <select id="history-tenant-filter" onchange="renderHistoryTable()" class="bg-slate-50 border border-slate-300 text-slate-700 text-sm font-medium rounded-xl px-3 py-2 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
-            <option value="ALL">All Tenants</option>
-          </select>
-
-          <!-- Filter by Status -->
-          <select id="history-status-filter" onchange="renderHistoryTable()" class="bg-slate-50 border border-slate-300 text-slate-700 text-sm font-medium rounded-xl px-3 py-2 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+      <!-- ==============================================
+           TAB 3: ALL BILLS / RECEIPTS HISTORY
+           ============================================== -->
+      <section id="view-history" class="hidden space-y-3">
+        <div class="flex items-center gap-2">
+          <select id="history-status-filter" onchange="renderHistoryList()" class="flex-1 bg-white border border-slate-300 rounded-xl px-2.5 py-2 text-xs font-semibold text-slate-800">
             <option value="ALL">All Status</option>
             <option value="Paid">Paid Only</option>
             <option value="Pending">Pending Only</option>
           </select>
 
-          <!-- Search Box -->
-          <div class="relative flex-grow sm:w-60">
-            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
-            <input type="text" id="history-search" oninput="renderHistoryTable()" placeholder="Search tenant, notes..." class="w-full bg-slate-50 border border-slate-300 pl-9 pr-3 py-2 text-sm rounded-xl focus:ring-2 focus:ring-emerald-500 focus:bg-white focus:outline-none">
-          </div>
-        </div>
-
-        <div class="flex items-center gap-2">
-          <button onclick="exportToCSV()" title="Export filtered records to Excel/CSV" class="px-3.5 py-2 rounded-xl border border-slate-300 text-slate-700 font-semibold text-xs hover:bg-slate-100 flex items-center gap-1.5 transition">
-            <i class="fa-solid fa-file-excel text-emerald-600"></i> Download CSV
+          <button onclick="exportToCSV()" title="Download Excel/CSV" class="px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-700 flex items-center gap-1 shadow-2xs">
+            <i class="fa-solid fa-file-excel text-emerald-600"></i> CSV
           </button>
         </div>
-      </div>
 
-      <!-- History Table -->
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-sm">
-            <thead class="bg-slate-50 text-slate-500 font-semibold text-xs uppercase border-b border-slate-100">
-              <tr>
-                <th class="px-4 py-3.5">Month</th>
-                <th class="px-4 py-3.5">Room & Tenant</th>
-                <th class="px-4 py-3.5">Rent</th>
-                <th class="px-4 py-3.5">Electricity Meter</th>
-                <th class="px-4 py-3.5">Total Bill</th>
-                <th class="px-4 py-3.5">Payment</th>
-                <th class="px-4 py-3.5 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody id="history-table-tbody" class="divide-y divide-slate-100">
-              <!-- Dynamically populated -->
-            </tbody>
-          </table>
+        <!-- Search Bar -->
+        <div class="relative">
+          <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+          <input type="text" id="history-search" oninput="renderHistoryList()" placeholder="Search tenant name or room..." class="w-full bg-white border border-slate-300 rounded-xl pl-8 pr-3 py-2 text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none">
         </div>
-        <div id="history-empty" class="hidden p-10 text-center text-slate-500">
-          <i class="fa-solid fa-folder-open text-4xl mb-2 text-slate-300"></i>
-          <p class="font-medium">No billing records found matching the filters.</p>
+
+        <!-- History cards list -->
+        <div id="history-cards-container" class="space-y-2.5">
+          <!-- Rendered by JS -->
         </div>
-      </div>
-    </section>
 
-    <!-- ==============================================
-         TAB 4: TENANTS LIST & MANAGEMENT
-         ============================================== -->
-    <section id="view-tenants" class="hidden space-y-6">
-      <div class="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h2 class="text-xl font-bold text-slate-900">Active Tenants & Rooms</h2>
-          <p class="text-sm text-slate-500">Manage tenant profiles, agreed rent, and starting meter readings</p>
+        <div id="history-empty" class="hidden p-8 bg-white rounded-2xl border border-slate-200 text-center text-slate-400 text-xs">
+          <i class="fa-solid fa-receipt text-3xl mb-1 text-slate-300"></i>
+          <p>No billing records found.</p>
         </div>
-        <button onclick="openTenantModal()" class="px-4 py-2.5 rounded-xl bg-emerald-600 text-white font-semibold text-sm hover:bg-emerald-700 transition shadow-sm flex items-center gap-2">
-          <i class="fa-solid fa-user-plus"></i>
-          <span>Add New Tenant</span>
-        </button>
-      </div>
+      </section>
 
-      <!-- Tenant Cards Grid -->
-      <div id="tenants-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        <!-- Dynamically rendered -->
-      </div>
-
-      <div id="tenants-empty" class="hidden bg-white rounded-2xl p-12 text-center border border-slate-200">
-        <div class="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-3">
-          <i class="fa-solid fa-users"></i>
-        </div>
-        <h3 class="text-lg font-bold text-slate-800">No tenants added yet!</h3>
-        <p class="text-slate-500 text-sm max-w-md mx-auto mt-1 mb-5">Click below to add your first tenant's room number, name, and monthly rent amount.</p>
-        <button onclick="openTenantModal()" class="px-5 py-2.5 bg-emerald-600 text-white rounded-xl font-semibold text-sm hover:bg-emerald-700 transition">
-          Add First Tenant
-        </button>
-      </div>
-    </section>
-
-    <!-- ==============================================
-         TAB 5: SETTINGS & BACKUP
-         ============================================== -->
-    <section id="view-settings" class="hidden max-w-3xl mx-auto space-y-6">
-      
-      <!-- General Preferences -->
-      <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-5">
-        <h3 class="text-lg font-bold text-slate-900 border-b border-slate-100 pb-3">Default Billing Settings</h3>
-        
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <!-- ==============================================
+           TAB 4: TENANTS LIST (MOBILE CARDS)
+           ============================================== -->
+      <section id="view-tenants" class="hidden space-y-3">
+        <div class="flex items-center justify-between px-1">
           <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Currency Symbol</label>
-            <select id="setting-currency" onchange="updateSettings()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 font-bold text-slate-800 focus:outline-none">
-              <option value="₹">₹ (INR - Rupee)</option>
-              <option value="$">$ (USD - Dollar)</option>
-              <option value="€">€ (EUR - Euro)</option>
-              <option value="£">£ (GBP - Pound)</option>
-              <option value="AED">AED (Dirham)</option>
-            </select>
+            <h2 class="text-sm font-bold text-slate-800">Tenants & Rooms</h2>
+            <p class="text-[11px] text-slate-500">Agreed rents and meter baselines</p>
           </div>
+          <button onclick="openTenantModal()" class="px-3 py-1.5 bg-emerald-600 text-white rounded-xl text-xs font-bold flex items-center gap-1 shadow-xs">
+            <i class="fa-solid fa-plus text-[10px]"></i> Add Tenant
+          </button>
+        </div>
 
+        <div id="tenants-mobile-container" class="space-y-2.5">
+          <!-- Rendered by JS -->
+        </div>
+
+        <div id="tenants-empty" class="hidden bg-white rounded-2xl p-8 text-center border border-slate-200">
+          <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center text-2xl mx-auto mb-2">
+            <i class="fa-solid fa-users"></i>
+          </div>
+          <h3 class="font-bold text-slate-800 text-sm">No tenants currently</h3>
+          <p class="text-xs text-slate-500 mt-1 mb-3">Add each tenant with their room and starting electricity meter.</p>
+          <button onclick="openTenantModal()" class="px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold">
+            + Add New Tenant
+          </button>
+        </div>
+      </section>
+
+      <!-- ==============================================
+           TAB 5: SETTINGS & BACKUP (MOBILE)
+           ============================================== -->
+      <section id="view-settings" class="hidden space-y-3.5">
+        <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs space-y-3">
+          <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider">Property & Rates</h3>
+          
           <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Default Electricity Rate / Unit</label>
-            <input type="number" id="setting-default-rate" step="0.1" min="0" onchange="updateSettings()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 font-bold text-slate-800 focus:outline-none" placeholder="e.g. 8.5">
-            <p class="text-xs text-slate-400 mt-1">This rate will automatically pre-fill for each new bill</p>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Building / House Name</label>
+            <input type="text" id="setting-property-name" onchange="updateSettings()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold focus:bg-white">
           </div>
 
-          <div class="sm:col-span-2">
-            <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Landlady / Property Name on Receipt</label>
-            <input type="text" id="setting-property-name" onchange="updateSettings()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 font-medium text-slate-800 focus:outline-none" placeholder="e.g. Sharma Niwas / Sunshine Apartments">
-          </div>
-        </div>
-      </div>
-
-      <!-- Backup & Restore -->
-      <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-5">
-        <div>
-          <h3 class="text-lg font-bold text-slate-900">Backup & Restore Records</h3>
-          <p class="text-xs text-slate-500 mt-0.5">Keep your records safe! Download a backup file anytime, or switch to a new phone/computer.</p>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <!-- Export -->
-          <div class="p-4 rounded-xl border border-emerald-200 bg-emerald-50/40 flex flex-col justify-between">
+          <div class="grid grid-cols-2 gap-2">
             <div>
-              <div class="text-emerald-700 font-bold text-base flex items-center gap-2 mb-1">
-                <i class="fa-solid fa-cloud-arrow-down"></i> Save Backup File
-              </div>
-              <p class="text-xs text-slate-600 mb-4">Download all tenants, electricity readings, and rent records to your computer or phone.</p>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Currency</label>
+              <select id="setting-currency" onchange="updateSettings()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-2.5 py-2 text-xs font-bold">
+                <option value="₹">₹ (INR)</option>
+                <option value="$">$ (USD)</option>
+                <option value="AED">AED</option>
+                <option value="£">£</option>
+                <option value="€">€</option>
+              </select>
             </div>
-            <button onclick="exportJSONBackup()" class="w-full py-2.5 bg-emerald-600 text-white font-semibold text-xs rounded-xl hover:bg-emerald-700 transition">
-              Download Backup (.json)
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Rate / Unit</label>
+              <input type="number" id="setting-default-rate" step="0.5" onchange="updateSettings()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold focus:bg-white">
+            </div>
+          </div>
+        </div>
+
+        <!-- Phone Backup & Storage -->
+        <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs space-y-3">
+          <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider">Device Backup</h3>
+          <p class="text-[11px] text-slate-500">Records are saved in your phone. You can download a backup file anytime.</p>
+          
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="exportJSONBackup()" class="py-2.5 px-3 bg-emerald-600 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5">
+              <i class="fa-solid fa-download"></i> Save Backup
             </button>
-          </div>
-
-          <!-- Import -->
-          <div class="p-4 rounded-xl border border-blue-200 bg-blue-50/40 flex flex-col justify-between">
-            <div>
-              <div class="text-blue-700 font-bold text-base flex items-center gap-2 mb-1">
-                <i class="fa-solid fa-cloud-arrow-up"></i> Restore From Backup
-              </div>
-              <p class="text-xs text-slate-600 mb-4">Load a previously downloaded backup file to restore records.</p>
-            </div>
-            <label class="w-full py-2.5 bg-blue-600 text-white font-semibold text-xs rounded-xl hover:bg-blue-700 transition text-center cursor-pointer block">
-              Choose Backup File
-              <input type="file" id="import-file" accept=".json" onchange="importJSONBackup(event)" class="hidden">
+            <label class="py-2.5 px-3 bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer text-center">
+              <i class="fa-solid fa-upload"></i> Restore
+              <input type="file" accept=".json" onchange="importJSONBackup(event)" class="hidden">
             </label>
           </div>
+
+          <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+            <span class="text-slate-400">Need to wipe and reset?</span>
+            <button onclick="clearAllDataConfirm()" class="text-rose-600 font-bold hover:underline">
+              Clear All Data
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Bottom Navigation Bar (App Experience) -->
+    <nav class="fixed bottom-0 left-0 right-0 max-w-[480px] mx-auto bg-white border-t border-slate-200 shadow-lg px-2 py-1.5 z-40 flex items-center justify-around">
+      <button onclick="switchTab('dashboard')" id="nav-dashboard" class="flex-1 py-1.5 flex flex-col items-center gap-1 text-emerald-600 font-bold text-[10px] transition">
+        <i class="fa-solid fa-chart-pie text-base"></i>
+        <span>Home</span>
+      </button>
+
+      <button onclick="switchTab('record')" id="nav-record" class="flex-1 py-1.5 flex flex-col items-center gap-1 text-slate-400 font-semibold text-[10px] transition">
+        <i class="fa-solid fa-circle-plus text-base text-emerald-600"></i>
+        <span>Add Bill</span>
+      </button>
+
+      <button onclick="switchTab('history')" id="nav-history" class="flex-1 py-1.5 flex flex-col items-center gap-1 text-slate-400 font-semibold text-[10px] transition">
+        <i class="fa-solid fa-receipt text-base"></i>
+        <span>Receipts</span>
+      </button>
+
+      <button onclick="switchTab('tenants')" id="nav-tenants" class="flex-1 py-1.5 flex flex-col items-center gap-1 text-slate-400 font-semibold text-[10px] transition">
+        <i class="fa-solid fa-users text-base"></i>
+        <span>Tenants</span>
+      </button>
+
+      <button onclick="switchTab('settings')" id="nav-settings" class="flex-1 py-1.5 flex flex-col items-center gap-1 text-slate-400 font-semibold text-[10px] transition">
+        <i class="fa-solid fa-gear text-base"></i>
+        <span>Settings</span>
+      </button>
+    </nav>
+
+    <!-- ==============================================
+         MODAL: ADD / EDIT TENANT
+         ============================================== -->
+    <div id="tenant-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs hidden items-end sm:items-center justify-center p-3">
+      <div class="bg-white rounded-3xl w-full max-w-sm p-4 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-2 mb-3">
+          <h3 id="tenant-modal-title" class="font-bold text-slate-900 text-sm">Add New Tenant</h3>
+          <button onclick="closeTenantModal()" class="w-7 h-7 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center">
+            <i class="fa-solid fa-xmark text-xs"></i>
+          </button>
         </div>
 
-        <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
-          <span class="text-xs text-slate-500">Need to start fresh with demo data?</span>
-          <button onclick="loadSampleData()" class="text-xs font-semibold text-slate-600 hover:text-slate-900 underline">
-            Reload Sample Tenants & Bills
+        <form id="tenant-form" onsubmit="saveTenant(event)" class="space-y-3">
+          <input type="hidden" id="tenant-id" value="">
+
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-0.5">Room / Flat # *</label>
+            <input type="text" id="t-room" required placeholder="e.g. Room 101, Ground Floor" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold focus:bg-white focus:outline-none">
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-0.5">Tenant Name *</label>
+            <input type="text" id="t-name" required placeholder="e.g. Rahul Sharma" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold focus:bg-white focus:outline-none">
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-0.5">Phone (WhatsApp)</label>
+              <input type="tel" id="t-phone" placeholder="9876543210" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs focus:bg-white focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-0.5">Monthly Rent *</label>
+              <input type="number" id="t-rent" required step="any" min="0" placeholder="7000" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold text-slate-900 focus:bg-white focus:outline-none">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-0.5">Starting Meter</label>
+              <input type="number" id="t-meter" step="any" min="0" placeholder="e.g. 1000" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold focus:bg-white focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-0.5">Deposit Kept</label>
+              <input type="number" id="t-deposit" step="any" min="0" placeholder="15000" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs focus:bg-white focus:outline-none">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100">
+            <button type="button" onclick="closeTenantModal()" class="w-full py-2.5 rounded-xl bg-slate-100 text-slate-700 font-bold text-xs">Cancel</button>
+            <button type="submit" class="w-full py-2.5 rounded-xl bg-emerald-600 text-white font-bold text-xs shadow-md shadow-emerald-200">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ==============================================
+         MODAL: RECEIPT SLIP & WHATSAPP SHARING
+         ============================================== -->
+    <div id="receipt-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs hidden items-center justify-center p-3 overflow-y-auto">
+      <div class="bg-white rounded-3xl w-full max-w-sm shadow-2xl border border-slate-200 overflow-hidden my-auto">
+        <!-- Top controls -->
+        <div class="bg-slate-900 text-white px-4 py-3 flex items-center justify-between no-print">
+          <span class="text-xs font-bold flex items-center gap-1.5">
+            <i class="fa-solid fa-receipt text-emerald-400"></i> Monthly Bill Slip
+          </span>
+          <button onclick="closeReceiptModal()" class="text-slate-400 hover:text-white">
+            <i class="fa-solid fa-xmark text-sm"></i>
+          </button>
+        </div>
+
+        <!-- Receipt Print Section -->
+        <div id="print-receipt-section" class="p-5 bg-white text-slate-800 text-xs">
+          <div class="text-center border-b-2 border-dashed border-slate-200 pb-3 mb-3">
+            <h2 id="receipt-prop-name" class="font-extrabold text-base text-slate-900">Property Slip</h2>
+            <p id="receipt-month-display" class="font-bold text-emerald-700 tracking-wider mt-0.5">MONTH: AUGUST 2026</p>
+            <p id="receipt-date-display" class="text-[10px] text-slate-400 mt-0.5"></p>
+          </div>
+
+          <div class="bg-slate-50 rounded-xl p-3 mb-3 border border-slate-100 space-y-1">
+            <div class="flex justify-between">
+              <span class="text-slate-500">Room:</span>
+              <strong id="receipt-room" class="text-slate-900 font-bold">101</strong>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-500">Tenant:</span>
+              <strong id="receipt-name" class="text-slate-900 font-bold">Rahul</strong>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-500">Status:</span>
+              <span id="receipt-status-badge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">PAID</span>
+            </div>
+          </div>
+
+          <div class="space-y-2 mb-3">
+            <div class="flex justify-between py-1 border-b border-slate-100">
+              <span class="text-slate-600">Base Room Rent:</span>
+              <span id="receipt-rent-val" class="font-bold text-slate-900">₹0</span>
+            </div>
+
+            <div class="bg-amber-50 p-2.5 rounded-lg border border-amber-100 space-y-1 text-[11px]">
+              <div class="flex justify-between font-bold text-amber-900">
+                <span>Electricity Bill:</span>
+                <span id="receipt-elec-val">₹0</span>
+              </div>
+              <div class="flex justify-between text-slate-600 text-[10px]">
+                <span>Meter (Prev → Curr):</span>
+                <span id="receipt-readings-val">0 → 0</span>
+              </div>
+              <div class="flex justify-between text-slate-600 text-[10px]">
+                <span>Units Consumed:</span>
+                <span id="receipt-units-val">0 units</span>
+              </div>
+            </div>
+
+            <div id="receipt-extra-row" class="flex justify-between py-1 border-b border-slate-100 hidden">
+              <span class="text-slate-600">Maintenance / Water:</span>
+              <span id="receipt-extra-val" class="font-semibold text-slate-900">₹0</span>
+            </div>
+          </div>
+
+          <div class="bg-slate-900 text-white rounded-xl p-3.5 flex justify-between items-center mb-2">
+            <div>
+              <span class="text-[10px] text-slate-400 block uppercase">Total Amount</span>
+              <span id="receipt-pay-meta" class="text-[10px] text-emerald-300">Paid via Cash</span>
+            </div>
+            <div id="receipt-grand-val" class="text-xl font-black text-emerald-400">₹0</div>
+          </div>
+
+          <p class="text-[10px] text-center text-slate-400 italic">Thank you!</p>
+        </div>
+
+        <!-- WhatsApp & Print Buttons -->
+        <div class="p-3 bg-slate-50 border-t border-slate-200 flex gap-2 no-print">
+          <button onclick="shareDirectWhatsApp()" class="flex-1 py-2.5 bg-emerald-600 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm">
+            <i class="fa-brands fa-whatsapp text-sm"></i> Send to WhatsApp
+          </button>
+          <button onclick="window.print()" class="px-4 py-2.5 bg-slate-800 text-white rounded-xl font-bold text-xs flex items-center gap-1">
+            <i class="fa-solid fa-print"></i> Print
           </button>
         </div>
       </div>
-    </section>
-
-  </main>
-
-  <!-- ==============================================
-       MODAL: TENANT ADD / EDIT
-       ============================================== -->
-  <div id="tenant-modal" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl border border-slate-100 transform transition-all">
-      <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
-        <h3 id="tenant-modal-title" class="text-lg font-bold text-slate-900">Add New Tenant</h3>
-        <button onclick="closeTenantModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-
-      <form id="tenant-form" onsubmit="saveTenant(event)" class="space-y-4">
-        <input type="hidden" id="tenant-id" value="">
-
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Room / Flat # <span class="text-rose-500">*</span></label>
-            <input type="text" id="t-room" required placeholder="e.g. 101, Ground Floor" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-semibold focus:ring-2 focus:ring-emerald-500 focus:bg-white focus:outline-none">
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Tenant Name <span class="text-rose-500">*</span></label>
-            <input type="text" id="t-name" required placeholder="e.g. Rahul Verma" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-semibold focus:ring-2 focus:ring-emerald-500 focus:bg-white focus:outline-none">
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Phone Number</label>
-            <input type="tel" id="t-phone" placeholder="e.g. 9876543210" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:bg-white focus:outline-none">
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Monthly Rent (<span class="currency-symbol">₹</span>) <span class="text-rose-500">*</span></label>
-            <input type="number" id="t-rent" required step="any" min="0" placeholder="e.g. 7000" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-bold text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:bg-white focus:outline-none">
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Initial Meter Reading</label>
-            <input type="number" id="t-meter" step="any" min="0" placeholder="e.g. 1200" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-semibold focus:ring-2 focus:ring-emerald-500 focus:bg-white focus:outline-none">
-            <p class="text-[10px] text-slate-400 mt-1">Starting point for power bill</p>
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Move-in Date</label>
-            <input type="date" id="t-start-date" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:bg-white focus:outline-none">
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Security Deposit Kept (<span class="currency-symbol">₹</span>)</label>
-          <input type="number" id="t-deposit" step="any" min="0" placeholder="e.g. 15000" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:bg-white focus:outline-none">
-        </div>
-
-        <div class="flex justify-end gap-3 pt-3 border-t border-slate-100">
-          <button type="button" onclick="closeTenantModal()" class="px-4 py-2 text-sm font-semibold rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-100">Cancel</button>
-          <button type="submit" class="px-5 py-2 text-sm font-bold rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 shadow-md">Save Tenant</button>
-        </div>
-      </form>
     </div>
-  </div>
 
-  <!-- ==============================================
-       MODAL: BEAUTIFUL RENT SLIP / RECEIPT
-       ============================================== -->
-  <div id="receipt-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden my-6">
-      <!-- Modal Top Controls -->
-      <div class="bg-slate-800 text-white px-5 py-3.5 flex items-center justify-between no-print">
-        <span class="text-sm font-semibold flex items-center gap-2">
-          <i class="fa-solid fa-receipt text-emerald-400"></i> Monthly Rent & Bill Slip
-        </span>
-        <button onclick="closeReceiptModal()" class="text-slate-400 hover:text-white text-lg">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-
-      <!-- Printable Area -->
-      <div id="print-receipt-section" class="p-6 bg-white text-slate-800">
-        <!-- Receipt Header -->
-        <div class="text-center border-b-2 border-dashed border-slate-200 pb-4 mb-4">
-          <h2 id="receipt-prop-name" class="text-xl font-bold text-slate-900">Rent & Electricity Slip</h2>
-          <p id="receipt-month-display" class="text-xs font-semibold uppercase tracking-wider text-emerald-700 mt-1">MONTH: AUGUST 2026</p>
-          <p id="receipt-date-display" class="text-[11px] text-slate-400 mt-0.5">Date: 15 Sep 2026</p>
-        </div>
-
-        <!-- Tenant Info -->
-        <div class="bg-slate-50 rounded-xl p-3.5 mb-4 border border-slate-100 text-sm space-y-1">
-          <div class="flex justify-between">
-            <span class="text-slate-500 font-medium">Room / Flat:</span>
-            <strong id="receipt-room" class="text-slate-900 font-bold">Room 101</strong>
-          </div>
-          <div class="flex justify-between">
-            <span class="text-slate-500 font-medium">Tenant Name:</span>
-            <span id="receipt-name" class="text-slate-900 font-bold">Rahul Verma</span>
-          </div>
-          <div class="flex justify-between">
-            <span class="text-slate-500 font-medium">Status:</span>
-            <span id="receipt-status-badge" class="px-2 py-0.5 rounded text-xs font-bold bg-emerald-100 text-emerald-800">PAID</span>
-          </div>
-        </div>
-
-        <!-- Line Items -->
-        <div class="space-y-2.5 text-sm mb-4">
-          <div class="flex justify-between py-1 border-b border-slate-100">
-            <span class="text-slate-600">Base Room Rent:</span>
-            <span id="receipt-rent-val" class="font-bold text-slate-900">₹7,000</span>
-          </div>
-
-          <!-- Electricity Reading Detail -->
-          <div class="bg-amber-50/70 p-3 rounded-xl border border-amber-100 text-xs space-y-1">
-            <div class="font-bold text-amber-900 flex items-center justify-between">
-              <span>Electricity Bill</span>
-              <span id="receipt-elec-val" class="text-sm font-extrabold text-amber-900">₹720</span>
-            </div>
-            <div class="text-slate-600 flex justify-between">
-              <span>Current Meter Reading:</span>
-              <span id="receipt-curr-reading" class="font-semibold text-slate-800">1540</span>
-            </div>
-            <div class="text-slate-600 flex justify-between">
-              <span>Previous Meter Reading:</span>
-              <span id="receipt-prev-reading" class="font-semibold text-slate-800">1420</span>
-            </div>
-            <div class="text-slate-600 flex justify-between font-medium pt-1 border-t border-amber-200/60">
-              <span>Units Consumed:</span>
-              <span id="receipt-units-math" class="font-bold text-slate-900">120 units @ ₹6/unit</span>
-            </div>
-          </div>
-
-          <div id="receipt-extra-row" class="flex justify-between py-1 border-b border-slate-100">
-            <span class="text-slate-600">Water / Maintenance:</span>
-            <span id="receipt-extra-val" class="font-semibold text-slate-900">₹0</span>
-          </div>
-        </div>
-
-        <!-- Total -->
-        <div class="bg-slate-900 text-white rounded-xl p-4 flex justify-between items-center mb-4">
-          <div>
-            <span class="text-xs text-slate-300 font-medium block uppercase tracking-wider">Total Amount</span>
-            <span class="text-[11px] text-slate-400" id="receipt-pay-meta">Paid via Google Pay on 05 Sep</span>
-          </div>
-          <div id="receipt-grand-val" class="text-2xl font-black text-emerald-400">₹7,720</div>
-        </div>
-
-        <p class="text-[11px] text-center text-slate-400 italic">Thank you! Keep this slip for your personal records.</p>
-      </div>
-
-      <!-- Action buttons -->
-      <div class="bg-slate-50 p-4 border-t border-slate-200 flex items-center justify-between gap-2 no-print">
-        <button onclick="shareViaWhatsApp()" class="flex-1 py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs flex items-center justify-center gap-2 shadow-xs transition">
-          <i class="fa-brands fa-whatsapp text-base"></i> Copy for WhatsApp
-        </button>
-        <button onclick="window.print()" class="py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-semibold text-xs flex items-center gap-1.5 transition">
-          <i class="fa-solid fa-print"></i> Print Slip
-        </button>
-      </div>
-    </div>
   </div>
 
   <script>
     /* =========================================================================
-       APPLICATION DATA STORE & DEFAULTS
+       RELIABLE PERSISTENT STORAGE ENGINE (Never resets upon refresh or deletions)
        ========================================================================= */
-    const STORAGE_KEY_TENANTS = 'mom_rent_tenants_v1';
-    const STORAGE_KEY_BILLS = 'mom_rent_bills_v1';
-    const STORAGE_KEY_SETTINGS = 'mom_rent_settings_v1';
+    const STORAGE_KEY_INITIALIZED = 'mom_rent_v3_setup_done';
+    const STORAGE_KEY_TENANTS = 'mom_rent_v3_tenants';
+    const STORAGE_KEY_BILLS = 'mom_rent_v3_bills';
+    const STORAGE_KEY_SETTINGS = 'mom_rent_v3_settings';
 
-    // App state
+    // Application state
     let state = {
       tenants: [],
       bills: [],
@@ -765,180 +668,99 @@
     };
 
     window.addEventListener('DOMContentLoaded', () => {
-      loadDataFromStorage();
-      
-      // If first time ever, load sample data so mom sees how it works right away!
-      if (state.tenants.length === 0 && state.bills.length === 0) {
-        initDefaultSampleData();
-      }
+      loadStorageData();
 
-      // Initialize UI controls
+      // UI setup
       setDashboardCurrentMonth();
       applySettingsToUI();
       populateTenantDropdowns();
       renderDashboard();
-      renderHistoryTable();
+      renderHistoryList();
       renderTenants();
-      
-      // Default dates for new forms
+
+      // Set default dates
       const today = new Date().toISOString().split('T')[0];
       const monthInput = document.getElementById('bill-month');
       if (monthInput) monthInput.value = today.slice(0, 7);
-      const paidDateInput = document.getElementById('bill-paid-date');
-      if (paidDateInput) paidDateInput.value = today;
+      const paidDate = document.getElementById('bill-paid-date');
+      if (paidDate) paidDate.value = today;
 
-      const defaultRateInput = document.getElementById('bill-unit-rate');
-      if (defaultRateInput) defaultRateInput.value = state.settings.defaultUnitRate;
+      const rateInput = document.getElementById('bill-unit-rate');
+      if (rateInput) rateInput.value = state.settings.defaultUnitRate;
     });
 
-    /* =========================================================================
-       STORAGE & BACKUP FUNCTIONS
-       ========================================================================= */
-    function loadDataFromStorage() {
+    function loadStorageData() {
       try {
+        const isSetup = localStorage.getItem(STORAGE_KEY_INITIALIZED);
         const storedTenants = localStorage.getItem(STORAGE_KEY_TENANTS);
         const storedBills = localStorage.getItem(STORAGE_KEY_BILLS);
         const storedSettings = localStorage.getItem(STORAGE_KEY_SETTINGS);
 
-        if (storedTenants) state.tenants = JSON.parse(storedTenants);
-        if (storedBills) state.bills = JSON.parse(storedBills);
-        if (storedSettings) state.settings = { ...state.settings, ...JSON.parse(storedSettings) };
-      } catch (e) {
-        console.error("Storage load error:", e);
+        if (storedSettings) {
+          state.settings = { ...state.settings, ...JSON.parse(storedSettings) };
+        }
+
+        if (isSetup === 'true') {
+          // System is marked as setup. We strictly read user's saved data (even if empty!)
+          // WE NEVER RESTORE DUMMY DATA HERE!
+          state.tenants = storedTenants ? JSON.parse(storedTenants) : [];
+          state.bills = storedBills ? JSON.parse(storedBills) : [];
+        } else {
+          // FIRST TIME ONLY EVER: Seed only 1 simple example so mom understands how it looks,
+          // then mark initialized permanently!
+          state.tenants = [
+            {
+              id: 't_demo_1',
+              room: 'Room 101',
+              name: 'Rahul (Sample)',
+              phone: '',
+              rent: 7000,
+              meterReading: 1200,
+              startDate: new Date().toISOString().split('T')[0],
+              deposit: 14000
+            }
+          ];
+          state.bills = [];
+          localStorage.setItem(STORAGE_KEY_INITIALIZED, 'true');
+          saveStorageData();
+        }
+      } catch (err) {
+        console.error("Storage load error:", err);
       }
     }
 
-    function saveAllToStorage() {
+    function saveStorageData() {
       try {
+        localStorage.setItem(STORAGE_KEY_INITIALIZED, 'true');
         localStorage.setItem(STORAGE_KEY_TENANTS, JSON.stringify(state.tenants));
         localStorage.setItem(STORAGE_KEY_BILLS, JSON.stringify(state.bills));
         localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(state.settings));
-      } catch (e) {
-        console.error("Storage save error:", e);
-        showToast("Error saving data locally", "error");
+      } catch (err) {
+        console.error("Storage save failed:", err);
+        showToast("Storage error on device", "error");
       }
     }
 
-    function initDefaultSampleData() {
-      state.settings = {
-        currency: '₹',
-        defaultUnitRate: 8,
-        propertyName: "Mom's Rental House"
-      };
-
-      const currentMonth = new Date().toISOString().slice(0, 7);
-      
-      state.tenants = [
-        {
-          id: 't_1',
-          room: 'Room 101 (1st Flr)',
-          name: 'Aakash Sharma',
-          phone: '9876543210',
-          rent: 7500,
-          meterReading: 1100,
-          startDate: '2026-01-01',
-          deposit: 15000
-        },
-        {
-          id: 't_2',
-          room: 'Room 102 (1st Flr)',
-          name: 'Priya & Ritu',
-          phone: '9812345678',
-          rent: 8000,
-          meterReading: 2350,
-          startDate: '2026-02-15',
-          deposit: 16000
-        },
-        {
-          id: 't_3',
-          room: 'Ground Floor Studio',
-          name: 'Vikram Mehta',
-          phone: '9988776655',
-          rent: 6500,
-          meterReading: 820,
-          startDate: '2026-03-01',
-          deposit: 13000
-        }
-      ];
-
-      // Sample bills for current month
-      state.bills = [
-        {
-          id: 'b_1',
-          tenantId: 't_1',
-          month: currentMonth,
-          rent: 7500,
-          maintenance: 200,
-          prevMeter: 1100,
-          currMeter: 1195,
-          units: 95,
-          unitRate: 8,
-          electricityTotal: 760,
-          grandTotal: 8460,
-          status: 'Paid',
-          paidDate: new Date().toISOString().split('T')[0],
-          paymentMode: 'Google Pay / UPI',
-          notes: 'Paid on time'
-        },
-        {
-          id: 'b_2',
-          tenantId: 't_2',
-          month: currentMonth,
-          rent: 8000,
-          maintenance: 200,
-          prevMeter: 2350,
-          currMeter: 2470,
-          units: 120,
-          unitRate: 8,
-          electricityTotal: 960,
-          grandTotal: 9160,
-          status: 'Pending',
-          paidDate: '',
-          paymentMode: 'Cash',
-          notes: 'Promised to pay by weekend'
-        }
-      ];
-
-      saveAllToStorage();
-    }
-
-    function loadSampleData() {
-      showConfirmModal(
-        "Load Sample Data?",
-        "This will reset records with sample tenants and bills for testing.",
-        () => {
-          initDefaultSampleData();
-          applySettingsToUI();
-          populateTenantDropdowns();
-          renderDashboard();
-          renderHistoryTable();
-          renderTenants();
-          showToast("Sample data loaded successfully!", "success");
-        }
-      );
-    }
-
+    /* Navigation between mobile tabs */
     function switchTab(tabId) {
       state.currentTab = tabId;
-      const views = ['dashboard', 'record', 'history', 'tenants', 'settings'];
-      
-      views.forEach(v => {
-        const viewEl = document.getElementById(`view-${v}`);
-        const tabEl = document.getElementById(`tab-${v}`);
-        if (viewEl) viewEl.classList.toggle('hidden', v !== tabId);
-        if (tabEl) {
-          if (v === tabId) {
-            tabEl.classList.add('active');
-            tabEl.classList.remove('text-slate-600', 'hover:bg-slate-100');
+      const tabs = ['dashboard', 'record', 'history', 'tenants', 'settings'];
+
+      tabs.forEach(t => {
+        const view = document.getElementById(`view-${t}`);
+        const nav = document.getElementById(`nav-${t}`);
+        if (view) view.classList.toggle('hidden', t !== tabId);
+        if (nav) {
+          if (t === tabId) {
+            nav.className = 'flex-1 py-1.5 flex flex-col items-center gap-1 text-emerald-600 font-bold text-[10px] transition';
           } else {
-            tabEl.classList.remove('active');
-            tabEl.classList.add('text-slate-600', 'hover:bg-slate-100');
+            nav.className = 'flex-1 py-1.5 flex flex-col items-center gap-1 text-slate-400 font-semibold text-[10px] transition';
           }
         }
       });
 
       if (tabId === 'dashboard') renderDashboard();
-      if (tabId === 'history') renderHistoryTable();
+      if (tabId === 'history') renderHistoryList();
       if (tabId === 'tenants') renderTenants();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -947,59 +769,51 @@
       const now = new Date();
       const yr = now.getFullYear();
       const m = String(now.getMonth() + 1).padStart(2, '0');
-      const val = `${yr}-${m}`;
       const input = document.getElementById('dashboard-month-filter');
-      if (input) input.value = val;
+      if (input) input.value = `${yr}-${m}`;
       renderDashboard();
     }
 
+    /* Render Mobile Dashboard */
     function renderDashboard() {
       const monthVal = document.getElementById('dashboard-month-filter')?.value || new Date().toISOString().slice(0, 7);
       const currency = state.settings.currency || '₹';
 
-      // Update tenant count
-      document.getElementById('dash-tenant-count').innerText = state.tenants.length;
+      document.getElementById('dash-tenant-count').innerText = `${state.tenants.length} Tenants`;
 
-      // Filter bills for this month
       const monthBills = state.bills.filter(b => b.month === monthVal);
 
-      let totalBilled = 0;
-      let totalReceived = 0;
-      let totalPending = 0;
-      let totalUnits = 0;
-      let totalElecAmount = 0;
-      let paidCount = 0;
-      let pendingCount = 0;
+      let billed = 0, received = 0, pending = 0, units = 0, elecAmount = 0;
+      let paidCount = 0, pendingCount = 0;
 
       monthBills.forEach(b => {
-        totalBilled += Number(b.grandTotal || 0);
-        totalUnits += Number(b.units || 0);
-        totalElecAmount += Number(b.electricityTotal || 0);
+        billed += Number(b.grandTotal || 0);
+        units += Number(b.units || 0);
+        elecAmount += Number(b.electricityTotal || 0);
 
         if (b.status === 'Paid') {
-          totalReceived += Number(b.grandTotal || 0);
+          received += Number(b.grandTotal || 0);
           paidCount++;
         } else {
-          totalPending += Number(b.grandTotal || 0);
+          pending += Number(b.grandTotal || 0);
           pendingCount++;
         }
       });
 
-      // Update Stats KPI
-      document.getElementById('stat-total-billed').innerText = `${currency}${totalBilled.toLocaleString()}`;
-      document.getElementById('stat-total-received').innerText = `${currency}${totalReceived.toLocaleString()}`;
-      document.getElementById('stat-paid-count').innerText = `${paidCount} bills paid`;
-      
-      document.getElementById('stat-total-pending').innerText = `${currency}${totalPending.toLocaleString()}`;
-      document.getElementById('stat-pending-count').innerText = `${pendingCount} unpaid/pending`;
+      document.getElementById('stat-total-billed').innerText = `${currency}${billed.toLocaleString()}`;
+      document.getElementById('stat-total-received').innerText = `${currency}${received.toLocaleString()}`;
+      document.getElementById('stat-paid-count').innerText = `${paidCount} paid`;
 
-      document.getElementById('stat-total-units').innerHTML = `${totalUnits.toLocaleString()} <span class="text-sm font-normal text-slate-600">units</span>`;
-      document.getElementById('stat-power-amt').innerText = `${currency}${totalElecAmount.toLocaleString()} electricity bill`;
+      document.getElementById('stat-total-pending').innerText = `${currency}${pending.toLocaleString()}`;
+      document.getElementById('stat-pending-count').innerText = `${pendingCount} pending`;
 
-      // Render table for ALL tenants against this month
-      const tbody = document.getElementById('dashboard-tenants-tbody');
+      document.getElementById('stat-total-units').innerHTML = `${units.toLocaleString()} <span class="text-xs font-normal">units</span>`;
+      document.getElementById('stat-power-amt').innerText = `${currency}${elecAmount.toLocaleString()} power bill`;
+
+      // Render cards
+      const container = document.getElementById('dashboard-tenants-list');
       const emptyMsg = document.getElementById('dash-empty-message');
-      tbody.innerHTML = '';
+      container.innerHTML = '';
 
       if (state.tenants.length === 0) {
         emptyMsg.classList.remove('hidden');
@@ -1009,94 +823,92 @@
 
       state.tenants.forEach(tenant => {
         const bill = monthBills.find(b => b.tenantId === tenant.id);
-        const tr = document.createElement('tr');
-        tr.className = 'hover:bg-slate-50/70 transition';
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-2xl p-3.5 border border-slate-200 shadow-xs space-y-2.5';
 
         if (bill) {
           const isPaid = bill.status === 'Paid';
-          tr.innerHTML = `
-            <td class="px-5 py-3.5">
-              <div class="font-bold text-slate-900">${escapeHtml(tenant.room)}</div>
-              <div class="text-xs text-slate-500 font-medium">${escapeHtml(tenant.name)}</div>
-            </td>
-            <td class="px-4 py-3.5 font-semibold text-slate-800">
-              ${currency}${Number(bill.rent).toLocaleString()}
-            </td>
-            <td class="px-4 py-3.5">
-              <span class="font-bold text-amber-700">${currency}${Number(bill.electricityTotal).toLocaleString()}</span>
-              <span class="text-xs text-slate-500 block">${bill.units} units (${bill.prevMeter} → ${bill.currMeter})</span>
-            </td>
-            <td class="px-4 py-3.5 font-bold text-slate-900 text-base">
-              ${currency}${Number(bill.grandTotal).toLocaleString()}
-            </td>
-            <td class="px-4 py-3.5">
-              <button onclick="toggleBillStatus('${bill.id}')" title="Click to change status" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${isPaid ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200' : 'bg-amber-100 text-amber-800 hover:bg-amber-200'} transition cursor-pointer">
-                <i class="fa-solid ${isPaid ? 'fa-check-circle text-emerald-600' : 'fa-clock text-amber-600'}"></i>
+          card.innerHTML = `
+            <div class="flex items-start justify-between">
+              <div>
+                <span class="inline-block px-2 py-0.5 rounded-md bg-slate-100 text-slate-800 font-extrabold text-[11px]">
+                  ${escapeHtml(tenant.room)}
+                </span>
+                <h3 class="font-bold text-slate-900 text-sm mt-0.5">${escapeHtml(tenant.name)}</h3>
+              </div>
+              <div class="text-right">
+                <span class="text-base font-black text-slate-900">${currency}${Number(bill.grandTotal).toLocaleString()}</span>
+                <span class="block text-[10px] text-slate-400">Total Bill</span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 bg-slate-50 p-2 rounded-xl text-[11px]">
+              <div>
+                <span class="text-slate-400 block text-[10px]">Rent:</span>
+                <span class="font-bold text-slate-800">${currency}${Number(bill.rent).toLocaleString()}</span>
+              </div>
+              <div>
+                <span class="text-slate-400 block text-[10px]">Power (${bill.units} units):</span>
+                <span class="font-bold text-amber-700">${currency}${Number(bill.electricityTotal).toLocaleString()}</span>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between pt-1 border-t border-slate-100">
+              <button onclick="toggleBillStatus('${bill.id}')" class="px-3 py-1 rounded-full text-[11px] font-bold flex items-center gap-1 ${isPaid ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+                <i class="fa-solid ${isPaid ? 'fa-check text-emerald-600' : 'fa-clock text-amber-600'}"></i>
                 ${isPaid ? 'Paid' : 'Pending'}
               </button>
-            </td>
-            <td class="px-5 py-3.5 text-right space-x-1 whitespace-nowrap">
-              <button onclick="openReceipt('${bill.id}')" title="Print/Share Slip" class="p-2 rounded-lg bg-slate-100 hover:bg-emerald-100 hover:text-emerald-700 text-slate-600 transition">
-                <i class="fa-solid fa-receipt"></i>
-              </button>
-              <button onclick="editBill('${bill.id}')" title="Edit Bill" class="p-2 rounded-lg bg-slate-100 hover:bg-blue-100 hover:text-blue-700 text-slate-600 transition">
-                <i class="fa-solid fa-pen-to-square"></i>
-              </button>
-            </td>
+              
+              <div class="flex gap-1">
+                <button onclick="openReceipt('${bill.id}')" title="Receipt" class="p-2 rounded-lg bg-emerald-50 text-emerald-700 text-xs">
+                  <i class="fa-solid fa-receipt"></i>
+                </button>
+                <button onclick="editBill('${bill.id}')" title="Edit" class="p-2 rounded-lg bg-slate-100 text-slate-700 text-xs">
+                  <i class="fa-solid fa-pen"></i>
+                </button>
+              </div>
+            </div>
           `;
         } else {
-          // Bill not generated yet for this tenant
-          tr.innerHTML = `
-            <td class="px-5 py-3.5">
-              <div class="font-bold text-slate-900">${escapeHtml(tenant.room)}</div>
-              <div class="text-xs text-slate-500 font-medium">${escapeHtml(tenant.name)}</div>
-            </td>
-            <td class="px-4 py-3.5 font-semibold text-slate-500">
-              ${currency}${Number(tenant.rent).toLocaleString()} (Standard)
-            </td>
-            <td class="px-4 py-3.5 text-xs text-slate-400 italic">Not recorded yet</td>
-            <td class="px-4 py-3.5 text-xs text-slate-400">-</td>
-            <td class="px-4 py-3.5">
-              <span class="inline-block px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-500">Not Created</span>
-            </td>
-            <td class="px-5 py-3.5 text-right">
-              <button onclick="quickCreateBillForTenant('${tenant.id}', '${monthVal}')" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs transition">
+          // Bill not yet created for this month
+          card.innerHTML = `
+            <div class="flex items-center justify-between">
+              <div>
+                <span class="inline-block px-2 py-0.5 rounded-md bg-slate-100 text-slate-800 font-extrabold text-[11px]">
+                  ${escapeHtml(tenant.room)}
+                </span>
+                <h3 class="font-bold text-slate-800 text-sm mt-0.5">${escapeHtml(tenant.name)}</h3>
+              </div>
+              <div class="text-right">
+                <span class="text-xs text-slate-400">Rent: ${currency}${Number(tenant.rent).toLocaleString()}</span>
+              </div>
+            </div>
+            <div class="pt-2 border-t border-slate-100 flex items-center justify-between">
+              <span class="text-[11px] text-amber-600 font-medium">Bill not recorded yet</span>
+              <button onclick="quickCreateBillForTenant('${tenant.id}', '${monthVal}')" class="px-3 py-1.5 bg-emerald-600 text-white rounded-xl text-xs font-bold shadow-2xs">
                 + Create Bill
               </button>
-            </td>
+            </div>
           `;
         }
-        tbody.appendChild(tr);
+
+        container.appendChild(card);
       });
     }
 
     function populateTenantDropdowns() {
-      const billSelect = document.getElementById('bill-tenant-select');
-      const historyFilter = document.getElementById('history-tenant-filter');
+      const select = document.getElementById('bill-tenant-select');
+      if (!select) return;
+      const current = select.value;
+      select.innerHTML = '<option value="">-- Choose Tenant --</option>';
 
-      if (billSelect) {
-        const currentSelected = billSelect.value;
-        billSelect.innerHTML = '<option value="">-- Choose Tenant / Room --</option>';
-        state.tenants.forEach(t => {
-          const opt = document.createElement('option');
-          opt.value = t.id;
-          opt.textContent = `${t.room} - ${t.name}`;
-          billSelect.appendChild(opt);
-        });
-        billSelect.value = currentSelected;
-      }
-
-      if (historyFilter) {
-        const curHistory = historyFilter.value;
-        historyFilter.innerHTML = '<option value="ALL">All Tenants</option>';
-        state.tenants.forEach(t => {
-          const opt = document.createElement('option');
-          opt.value = t.id;
-          opt.textContent = `${t.room} (${t.name})`;
-          historyFilter.appendChild(opt);
-        });
-        historyFilter.value = curHistory;
-      }
+      state.tenants.forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t.id;
+        opt.textContent = `${t.room} - ${t.name}`;
+        select.appendChild(opt);
+      });
+      select.value = current;
     }
 
     function onTenantSelectionChange() {
@@ -1106,27 +918,22 @@
       const tenant = state.tenants.find(t => t.id === tenantId);
       if (!tenant) return;
 
-      // Auto-fill rent
       document.getElementById('bill-rent').value = tenant.rent || 0;
 
-      // Auto-fetch previous meter reading:
-      // Look for the latest bill of this tenant, or default to initial tenant meter reading
-      const tenantBills = state.bills.filter(b => b.tenantId === tenantId)
+      // Find previous meter reading from latest bill or initial tenant profile
+      const bills = state.bills.filter(b => b.tenantId === tenantId)
         .sort((a, b) => (b.month > a.month ? 1 : -1));
 
-      if (tenantBills.length > 0) {
-        document.getElementById('bill-prev-meter').value = tenantBills[0].currMeter || 0;
-        document.getElementById('prev-reading-hint').innerText = `Auto-fetched from ${tenantBills[0].month} bill (${tenantBills[0].currMeter})`;
+      if (bills.length > 0) {
+        document.getElementById('bill-prev-meter').value = bills[0].currMeter || 0;
       } else {
         document.getElementById('bill-prev-meter').value = tenant.meterReading || 0;
-        document.getElementById('prev-reading-hint').innerText = `Initial starting meter reading (${tenant.meterReading || 0})`;
       }
 
       calculateBillTotals();
     }
 
     function onBillMonthChange() {
-      // If user switches month, check if there's an existing bill for this tenant & month to load
       const tenantId = document.getElementById('bill-tenant-select').value;
       const month = document.getElementById('bill-month').value;
       if (tenantId && month) {
@@ -1145,12 +952,10 @@
       const unitRate = parseFloat(document.getElementById('bill-unit-rate').value) || 0;
       const currency = state.settings.currency || '₹';
 
-      // Units calculation (curr - prev, non-negative)
       const units = Math.max(0, currMeter - prevMeter);
       const electricityTotal = Math.round(units * unitRate * 100) / 100;
       const grandTotal = Math.round((rent + maintenance + electricityTotal) * 100) / 100;
 
-      // Update UI displays
       document.getElementById('bill-calc-units').innerText = units;
       document.getElementById('bill-electricity-total').innerText = `${currency}${electricityTotal.toLocaleString()}`;
       document.getElementById('bill-grand-total').innerText = `${currency}${grandTotal.toLocaleString()}`;
@@ -1158,10 +963,8 @@
 
     function togglePaymentFields() {
       const isPaid = document.querySelector('input[name="payment-status"]:checked').value === 'Paid';
-      const detailsRow = document.getElementById('payment-details-row');
-      if (detailsRow) {
-        detailsRow.style.opacity = isPaid ? '1' : '0.5';
-      }
+      const row = document.getElementById('payment-details-row');
+      if (row) row.style.opacity = isPaid ? '1' : '0.4';
     }
 
     function saveBillEntry(e) {
@@ -1172,11 +975,11 @@
       const month = document.getElementById('bill-month').value;
 
       if (!tenantId) {
-        showToast("Please select a tenant", "error");
+        showToast("Please choose a tenant", "error");
         return;
       }
       if (!month) {
-        showToast("Please choose a billing month", "error");
+        showToast("Please select a month", "error");
         return;
       }
 
@@ -1185,11 +988,6 @@
       const prevMeter = parseFloat(document.getElementById('bill-prev-meter').value) || 0;
       const currMeter = parseFloat(document.getElementById('bill-curr-meter').value) || 0;
       const unitRate = parseFloat(document.getElementById('bill-unit-rate').value) || 0;
-
-      if (currMeter < prevMeter) {
-        showToast("Current meter reading cannot be less than previous!", "warning");
-      }
-
       const units = Math.max(0, currMeter - prevMeter);
       const electricityTotal = Math.round(units * unitRate * 100) / 100;
       const grandTotal = Math.round((rent + maintenance + electricityTotal) * 100) / 100;
@@ -1199,33 +997,22 @@
       const notes = document.getElementById('bill-notes').value.trim();
 
       if (editId) {
-        // Update existing bill
         const idx = state.bills.findIndex(b => b.id === editId);
         if (idx !== -1) {
           state.bills[idx] = {
             ...state.bills[idx],
-            tenantId,
-            month,
-            rent,
-            maintenance,
-            prevMeter,
-            currMeter,
-            units,
-            unitRate,
-            electricityTotal,
-            grandTotal,
-            status,
+            tenantId, month, rent, maintenance, prevMeter, currMeter,
+            units, unitRate, electricityTotal, grandTotal, status,
             paidDate: status === 'Paid' ? paidDate : '',
             paymentMode: status === 'Paid' ? paymentMode : '',
             notes
           };
-          showToast("Bill updated successfully!", "success");
+          showToast("Bill updated!", "success");
         }
       } else {
-        // Check duplicate bill for same tenant & month
         const duplicate = state.bills.find(b => b.tenantId === tenantId && b.month === month);
         if (duplicate) {
-          showToast(`A bill for this tenant for ${month} already exists! Updating it instead.`, "info");
+          // Update duplicate
           duplicate.rent = rent;
           duplicate.maintenance = maintenance;
           duplicate.prevMeter = prevMeter;
@@ -1238,30 +1025,22 @@
           duplicate.paidDate = status === 'Paid' ? paidDate : '';
           duplicate.paymentMode = status === 'Paid' ? paymentMode : '';
           duplicate.notes = notes;
+          showToast("Existing bill updated", "info");
         } else {
           const newBill = {
             id: 'b_' + Date.now(),
-            tenantId,
-            month,
-            rent,
-            maintenance,
-            prevMeter,
-            currMeter,
-            units,
-            unitRate,
-            electricityTotal,
-            grandTotal,
-            status,
+            tenantId, month, rent, maintenance, prevMeter, currMeter,
+            units, unitRate, electricityTotal, grandTotal, status,
             paidDate: status === 'Paid' ? paidDate : '',
             paymentMode: status === 'Paid' ? paymentMode : '',
             notes
           };
           state.bills.unshift(newBill);
-          showToast("New bill saved successfully!", "success");
+          showToast("Bill saved successfully!", "success");
         }
       }
 
-      saveAllToStorage();
+      saveStorageData();
       resetBillForm();
       switchTab('dashboard');
     }
@@ -1282,7 +1061,7 @@
 
     function populateBillFormForEdit(bill) {
       document.getElementById('entry-id').value = bill.id;
-      document.getElementById('bill-form-title').innerText = "Edit Monthly Bill";
+      document.getElementById('bill-form-title').innerText = "Edit Bill";
       document.getElementById('bill-tenant-select').value = bill.tenantId;
       document.getElementById('bill-month').value = bill.month;
       document.getElementById('bill-rent').value = bill.rent;
@@ -1290,12 +1069,12 @@
       document.getElementById('bill-prev-meter').value = bill.prevMeter;
       document.getElementById('bill-curr-meter').value = bill.currMeter;
       document.getElementById('bill-unit-rate').value = bill.unitRate || state.settings.defaultUnitRate;
-      
-      const statusRadios = document.getElementsByName('payment-status');
-      for (const r of statusRadios) {
+
+      const radios = document.getElementsByName('payment-status');
+      for (const r of radios) {
         r.checked = (r.value === bill.status);
       }
-      
+
       document.getElementById('bill-paid-date').value = bill.paidDate || new Date().toISOString().split('T')[0];
       document.getElementById('bill-paid-mode').value = bill.paymentMode || 'Cash';
       document.getElementById('bill-notes').value = bill.notes || '';
@@ -1335,117 +1114,104 @@
         showToast("Marked as Paid!", "success");
       }
 
-      saveAllToStorage();
+      saveStorageData();
       renderDashboard();
-      renderHistoryTable();
+      renderHistoryList();
     }
 
-    function renderHistoryTable() {
-      const tenantFilter = document.getElementById('history-tenant-filter')?.value || 'ALL';
-      const statusFilter = document.getElementById('history-status-filter')?.value || 'ALL';
-      const searchTxt = (document.getElementById('history-search')?.value || '').toLowerCase().trim();
+    /* History Tab */
+    function renderHistoryList() {
+      const status = document.getElementById('history-status-filter')?.value || 'ALL';
+      const search = (document.getElementById('history-search')?.value || '').toLowerCase().trim();
       const currency = state.settings.currency || '₹';
 
-      const tbody = document.getElementById('history-table-tbody');
+      const container = document.getElementById('history-cards-container');
       const emptyDiv = document.getElementById('history-empty');
-      tbody.innerHTML = '';
+      container.innerHTML = '';
 
-      let filtered = state.bills.filter(b => {
-        if (tenantFilter !== 'ALL' && b.tenantId !== tenantFilter) return false;
-        if (statusFilter !== 'ALL' && b.status !== statusFilter) return false;
-
-        if (searchTxt) {
+      let list = state.bills.filter(b => {
+        if (status !== 'ALL' && b.status !== status) return false;
+        if (search) {
           const tenant = state.tenants.find(t => t.id === b.tenantId);
-          const tenantStr = tenant ? `${tenant.name} ${tenant.room}`.toLowerCase() : '';
-          const notesStr = (b.notes || '').toLowerCase();
-          const monthStr = b.month.toLowerCase();
-          if (!tenantStr.includes(searchTxt) && !notesStr.includes(searchTxt) && !monthStr.includes(searchTxt)) {
-            return false;
-          }
+          const tStr = tenant ? `${tenant.name} ${tenant.room}`.toLowerCase() : '';
+          const nStr = (b.notes || '').toLowerCase();
+          if (!tStr.includes(search) && !nStr.includes(search) && !b.month.includes(search)) return false;
         }
         return true;
       });
 
-      // Sort newest month first
-      filtered.sort((a, b) => (b.month > a.month ? 1 : -1));
+      list.sort((a, b) => (b.month > a.month ? 1 : -1));
 
-      if (filtered.length === 0) {
+      if (list.length === 0) {
         emptyDiv.classList.remove('hidden');
         return;
       }
       emptyDiv.classList.add('hidden');
 
-      filtered.forEach(bill => {
-        const tenant = state.tenants.find(t => t.id === bill.tenantId) || { name: 'Unknown Tenant', room: 'Unknown' };
+      list.forEach(bill => {
+        const tenant = state.tenants.find(t => t.id === bill.tenantId) || { name: 'Unknown', room: 'Room' };
         const isPaid = bill.status === 'Paid';
 
-        // Format Month: e.g. 2026-08 -> Aug 2026
         const [y, m] = bill.month.split('-');
         const monthDate = new Date(y, parseInt(m, 10) - 1, 1);
         const formattedMonth = monthDate.toLocaleString('default', { month: 'short', year: 'numeric' });
 
-        const tr = document.createElement('tr');
-        tr.className = 'hover:bg-slate-50 transition text-sm';
-        tr.innerHTML = `
-          <td class="px-4 py-3.5 font-bold text-slate-900 whitespace-nowrap">
-            ${formattedMonth}
-          </td>
-          <td class="px-4 py-3.5">
-            <div class="font-bold text-slate-800">${escapeHtml(tenant.room)}</div>
-            <div class="text-xs text-slate-500">${escapeHtml(tenant.name)}</div>
-          </td>
-          <td class="px-4 py-3.5 font-semibold text-slate-800">
-            ${currency}${Number(bill.rent).toLocaleString()}
-          </td>
-          <td class="px-4 py-3.5">
-            <div class="font-bold text-amber-700">${currency}${Number(bill.electricityTotal).toLocaleString()}</div>
-            <div class="text-xs text-slate-500">${bill.units} units (${bill.prevMeter} - ${bill.currMeter})</div>
-          </td>
-          <td class="px-4 py-3.5">
-            <div class="font-bold text-base text-slate-900">${currency}${Number(bill.grandTotal).toLocaleString()}</div>
-          </td>
-          <td class="px-4 py-3.5 whitespace-nowrap">
-            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold ${isPaid ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
-              <i class="fa-solid ${isPaid ? 'fa-check text-emerald-600' : 'fa-clock text-amber-600'}"></i>
-              ${isPaid ? 'Paid' : 'Pending'}
-            </span>
-            ${bill.paidDate ? `<div class="text-[11px] text-slate-400 mt-0.5">${bill.paidDate}</div>` : ''}
-          </td>
-          <td class="px-4 py-3.5 text-right whitespace-nowrap space-x-1">
-            <button onclick="openReceipt('${bill.id}')" title="Receipt & Slip" class="p-2 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition">
-              <i class="fa-solid fa-receipt"></i>
-            </button>
-            <button onclick="editBill('${bill.id}')" title="Edit" class="p-2 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
-              <i class="fa-solid fa-pen"></i>
-            </button>
-            <button onclick="deleteBillConfirm('${bill.id}')" title="Delete" class="p-2 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 transition">
-              <i class="fa-solid fa-trash"></i>
-            </button>
-          </td>
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-2xl p-3.5 border border-slate-200 shadow-xs space-y-2';
+        card.innerHTML = `
+          <div class="flex items-start justify-between">
+            <div>
+              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">${formattedMonth}</span>
+              <h4 class="font-extrabold text-slate-900 text-sm">${escapeHtml(tenant.room)} - ${escapeHtml(tenant.name)}</h4>
+            </div>
+            <div class="text-right">
+              <span class="text-base font-black text-slate-900">${currency}${Number(bill.grandTotal).toLocaleString()}</span>
+              <span class="block px-2 py-0.5 rounded-full text-[10px] font-bold ${isPaid ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'} mt-0.5">
+                ${isPaid ? 'PAID' : 'PENDING'}
+              </span>
+            </div>
+          </div>
+
+          <div class="text-[11px] text-slate-600 flex justify-between bg-slate-50 p-2 rounded-lg">
+            <span>Rent: ${currency}${bill.rent}</span>
+            <span>Power: ${currency}${bill.electricityTotal} (${bill.units}u)</span>
+          </div>
+
+          <div class="flex items-center justify-between pt-1 border-t border-slate-100">
+            <span class="text-[10px] text-slate-400">${bill.paidDate ? 'Paid on: ' + bill.paidDate : 'Not paid yet'}</span>
+            <div class="flex items-center gap-1">
+              <button onclick="openReceipt('${bill.id}')" title="Receipt" class="px-2.5 py-1 bg-emerald-50 text-emerald-700 font-bold rounded-lg text-xs">
+                <i class="fa-solid fa-receipt"></i> Slip
+              </button>
+              <button onclick="editBill('${bill.id}')" title="Edit" class="p-1.5 bg-slate-100 text-slate-600 rounded-lg text-xs">
+                <i class="fa-solid fa-pen"></i>
+              </button>
+              <button onclick="deleteBillConfirm('${bill.id}')" title="Delete" class="p-1.5 bg-rose-50 text-rose-600 rounded-lg text-xs">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
+          </div>
         `;
-        tbody.appendChild(tr);
+        container.appendChild(card);
       });
     }
 
     function deleteBillConfirm(billId) {
-      showConfirmModal(
-        "Delete this Bill Record?",
-        "Are you sure you want to delete this monthly bill? This cannot be undone.",
-        () => {
-          state.bills = state.bills.filter(b => b.id !== billId);
-          saveAllToStorage();
-          renderDashboard();
-          renderHistoryTable();
-          showToast("Bill record deleted", "info");
-        }
-      );
+      showConfirmModal("Delete Bill?", "Are you sure you want to delete this bill record?", () => {
+        state.bills = state.bills.filter(b => b.id !== billId);
+        saveStorageData();
+        renderDashboard();
+        renderHistoryList();
+        showToast("Bill deleted", "info");
+      });
     }
 
+    /* Tenant Management */
     function renderTenants() {
-      const grid = document.getElementById('tenants-grid');
+      const container = document.getElementById('tenants-mobile-container');
       const emptyDiv = document.getElementById('tenants-empty');
       const currency = state.settings.currency || '₹';
-      grid.innerHTML = '';
+      container.innerHTML = '';
 
       if (state.tenants.length === 0) {
         emptyDiv.classList.remove('hidden');
@@ -1454,70 +1220,60 @@
       emptyDiv.classList.add('hidden');
 
       state.tenants.forEach(tenant => {
-        // Calculate recent electricity reading from latest bill
         const tenantBills = state.bills.filter(b => b.tenantId === tenant.id)
           .sort((a, b) => (b.month > a.month ? 1 : -1));
         const lastReading = tenantBills.length > 0 ? tenantBills[0].currMeter : tenant.meterReading;
 
         const card = document.createElement('div');
-        card.className = 'bg-white rounded-2xl border border-slate-200 p-5 shadow-xs hover:shadow-md transition flex flex-col justify-between';
+        card.className = 'bg-white rounded-2xl p-3.5 border border-slate-200 shadow-xs space-y-3';
         card.innerHTML = `
-          <div>
-            <div class="flex items-start justify-between">
-              <div>
-                <span class="inline-block px-2.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800 font-bold text-xs">
-                  ${escapeHtml(tenant.room)}
-                </span>
-                <h3 class="text-lg font-bold text-slate-900 mt-1">${escapeHtml(tenant.name)}</h3>
-              </div>
-              <div class="text-right">
-                <span class="text-xs text-slate-400 font-medium block">Agreed Rent</span>
-                <span class="text-lg font-black text-emerald-700">${currency}${Number(tenant.rent).toLocaleString()}</span>
-              </div>
+          <div class="flex items-start justify-between">
+            <div>
+              <span class="inline-block px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 font-bold text-[11px]">
+                ${escapeHtml(tenant.room)}
+              </span>
+              <h3 class="font-extrabold text-slate-900 text-sm mt-1">${escapeHtml(tenant.name)}</h3>
+              ${tenant.phone ? `<a href="tel:${tenant.phone}" class="text-[11px] text-emerald-700 font-medium block mt-0.5"><i class="fa-solid fa-phone mr-1"></i>${tenant.phone}</a>` : ''}
             </div>
-
-            <div class="mt-4 pt-4 border-t border-slate-100 grid grid-cols-2 gap-2 text-xs">
-              <div>
-                <span class="text-slate-400 font-medium block">Phone:</span>
-                <span class="font-bold text-slate-800">${escapeHtml(tenant.phone || 'None')}</span>
-              </div>
-              <div>
-                <span class="text-slate-400 font-medium block">Latest Meter:</span>
-                <span class="font-bold text-amber-700">${lastReading || 0} units</span>
-              </div>
-              <div>
-                <span class="text-slate-400 font-medium block">Deposit Kept:</span>
-                <span class="font-bold text-slate-800">${tenant.deposit ? `${currency}${Number(tenant.deposit).toLocaleString()}` : '-'}</span>
-              </div>
-              <div>
-                <span class="text-slate-400 font-medium block">Move-in:</span>
-                <span class="font-medium text-slate-700">${tenant.startDate || 'Not set'}</span>
-              </div>
+            <div class="text-right">
+              <span class="text-xs text-slate-400 block font-medium">Rent</span>
+              <span class="text-base font-black text-emerald-700">${currency}${Number(tenant.rent).toLocaleString()}</span>
             </div>
           </div>
 
-          <div class="mt-5 pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
-            <button onclick="quickCreateBillForTenant('${tenant.id}', '${new Date().toISOString().slice(0, 7)}')" class="px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold transition flex items-center gap-1">
-              <i class="fa-solid fa-plus"></i> Bill
+          <div class="grid grid-cols-2 gap-2 text-[11px] bg-slate-50 p-2 rounded-xl">
+            <div>
+              <span class="text-slate-400 block text-[10px]">Latest Meter:</span>
+              <span class="font-bold text-amber-700">${lastReading || 0} units</span>
+            </div>
+            <div>
+              <span class="text-slate-400 block text-[10px]">Deposit:</span>
+              <span class="font-bold text-slate-700">${tenant.deposit ? `${currency}${Number(tenant.deposit).toLocaleString()}` : '-'}</span>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between pt-1 border-t border-slate-100">
+            <button onclick="quickCreateBillForTenant('${tenant.id}', '${new Date().toISOString().slice(0, 7)}')" class="px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-xl text-xs font-bold">
+              + Add Bill
             </button>
-            <div class="flex items-center space-x-1">
-              <button onclick="editTenantModal('${tenant.id}')" title="Edit Tenant" class="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 transition">
-                <i class="fa-solid fa-pen text-xs"></i>
+            <div class="flex gap-1.5">
+              <button onclick="editTenantModal('${tenant.id}')" class="p-2 bg-slate-100 text-slate-600 rounded-xl text-xs">
+                <i class="fa-solid fa-pen"></i>
               </button>
-              <button onclick="deleteTenantConfirm('${tenant.id}')" title="Delete Tenant" class="p-2 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 transition">
-                <i class="fa-solid fa-trash text-xs"></i>
+              <button onclick="deleteTenantConfirm('${tenant.id}')" class="p-2 bg-rose-50 text-rose-600 rounded-xl text-xs">
+                <i class="fa-solid fa-trash"></i>
               </button>
             </div>
           </div>
         `;
-        grid.appendChild(card);
+        container.appendChild(card);
       });
     }
 
     function openTenantModal() {
       document.getElementById('tenant-form').reset();
       document.getElementById('tenant-id').value = '';
-      document.getElementById('tenant-modal-title').innerText = "Add New Tenant";
+      document.getElementById('tenant-modal-title').innerText = "Add Tenant";
       document.getElementById('tenant-modal').classList.remove('hidden');
       document.getElementById('tenant-modal').classList.add('flex');
     }
@@ -1527,18 +1283,17 @@
       document.getElementById('tenant-modal').classList.remove('flex');
     }
 
-    function editTenantModal(tenantId) {
-      const t = state.tenants.find(item => item.id === tenantId);
+    function editTenantModal(id) {
+      const t = state.tenants.find(i => i.id === id);
       if (!t) return;
 
       document.getElementById('tenant-id').value = t.id;
-      document.getElementById('tenant-modal-title').innerText = "Edit Tenant Details";
+      document.getElementById('tenant-modal-title').innerText = "Edit Tenant";
       document.getElementById('t-room').value = t.room;
       document.getElementById('t-name').value = t.name;
       document.getElementById('t-phone').value = t.phone || '';
       document.getElementById('t-rent').value = t.rent;
       document.getElementById('t-meter').value = t.meterReading || 0;
-      document.getElementById('t-start-date').value = t.startDate || '';
       document.getElementById('t-deposit').value = t.deposit || '';
 
       document.getElementById('tenant-modal').classList.remove('hidden');
@@ -1553,33 +1308,26 @@
       const phone = document.getElementById('t-phone').value.trim();
       const rent = parseFloat(document.getElementById('t-rent').value) || 0;
       const meterReading = parseFloat(document.getElementById('t-meter').value) || 0;
-      const startDate = document.getElementById('t-start-date').value;
       const deposit = parseFloat(document.getElementById('t-deposit').value) || 0;
 
       if (id) {
-        // Edit existing
         const idx = state.tenants.findIndex(t => t.id === id);
         if (idx !== -1) {
-          state.tenants[idx] = { ...state.tenants[idx], room, name, phone, rent, meterReading, startDate, deposit };
+          state.tenants[idx] = { ...state.tenants[idx], room, name, phone, rent, meterReading, deposit };
           showToast("Tenant updated!", "success");
         }
       } else {
-        // Add new
         const newTenant = {
           id: 't_' + Date.now(),
-          room,
-          name,
-          phone,
-          rent,
-          meterReading,
-          startDate,
-          deposit
+          room, name, phone, rent, meterReading, deposit,
+          startDate: new Date().toISOString().split('T')[0]
         };
         state.tenants.push(newTenant);
-        showToast("New tenant added successfully!", "success");
+        showToast("New tenant added!", "success");
       }
 
-      saveAllToStorage();
+      // THIS PERMANENTLY SAVES TO STORAGE SO IT NEVER RESETS
+      saveStorageData();
       closeTenantModal();
       populateTenantDropdowns();
       renderTenants();
@@ -1588,57 +1336,53 @@
 
     function deleteTenantConfirm(tenantId) {
       const tenant = state.tenants.find(t => t.id === tenantId);
-      const name = tenant ? tenant.name : "this tenant";
-      
-      showConfirmModal(
-        `Delete ${name}?`,
-        "This will also delete the tenant's profile. (Past bills can remain in history).",
-        () => {
-          state.tenants = state.tenants.filter(t => t.id !== tenantId);
-          saveAllToStorage();
-          populateTenantDropdowns();
-          renderTenants();
-          renderDashboard();
-          showToast("Tenant removed", "info");
-        }
-      );
+      const name = tenant ? tenant.name : "tenant";
+
+      showConfirmModal(`Delete ${name}?`, "This will remove the tenant. Existing saved bills stay in your history.", () => {
+        // Remove tenant
+        state.tenants = state.tenants.filter(t => t.id !== tenantId);
+        // Save immediately - will NOT come back upon refresh!
+        saveStorageData();
+        populateTenantDropdowns();
+        renderTenants();
+        renderDashboard();
+        showToast("Tenant deleted", "info");
+      });
     }
 
+    /* Receipt & WhatsApp */
     function openReceipt(billId) {
       const bill = state.bills.find(b => b.id === billId);
       if (!bill) return;
 
-      const tenant = state.tenants.find(t => t.id === bill.tenantId) || { name: 'Tenant', room: 'Room' };
+      const tenant = state.tenants.find(t => t.id === bill.tenantId) || { name: 'Tenant', room: 'Room', phone: '' };
       const currency = state.settings.currency || '₹';
-
       state.currentReceiptData = { bill, tenant };
 
-      // Format Month: e.g. 2026-08 -> AUGUST 2026
       const [y, m] = bill.month.split('-');
       const monthDate = new Date(y, parseInt(m, 10) - 1, 1);
       const monthStr = monthDate.toLocaleString('default', { month: 'long', year: 'numeric' }).toUpperCase();
 
       document.getElementById('receipt-prop-name').innerText = state.settings.propertyName || "Rent & Electricity Slip";
       document.getElementById('receipt-month-display').innerText = `BILLING MONTH: ${monthStr}`;
-      document.getElementById('receipt-date-display').innerText = `Slip Generated: ${new Date().toLocaleDateString()}`;
+      document.getElementById('receipt-date-display').innerText = `Date: ${new Date().toLocaleDateString()}`;
 
       document.getElementById('receipt-room').innerText = tenant.room;
       document.getElementById('receipt-name').innerText = tenant.name;
 
       const badge = document.getElementById('receipt-status-badge');
       if (bill.status === 'Paid') {
-        badge.className = "px-2 py-0.5 rounded text-xs font-bold bg-emerald-100 text-emerald-800";
+        badge.className = "px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800";
         badge.innerText = "PAID";
       } else {
-        badge.className = "px-2 py-0.5 rounded text-xs font-bold bg-amber-100 text-amber-800";
-        badge.innerText = "PENDING PAYMENT";
+        badge.className = "px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800";
+        badge.innerText = "PENDING";
       }
 
       document.getElementById('receipt-rent-val').innerText = `${currency}${Number(bill.rent).toLocaleString()}`;
       document.getElementById('receipt-elec-val').innerText = `${currency}${Number(bill.electricityTotal).toLocaleString()}`;
-      document.getElementById('receipt-curr-reading').innerText = bill.currMeter;
-      document.getElementById('receipt-prev-reading').innerText = bill.prevMeter;
-      document.getElementById('receipt-units-math').innerText = `${bill.units} units @ ${currency}${bill.unitRate}/unit`;
+      document.getElementById('receipt-readings-val').innerText = `${bill.prevMeter} → ${bill.currMeter}`;
+      document.getElementById('receipt-units-val').innerText = `${bill.units} units (@ ${currency}${bill.unitRate}/unit)`;
 
       const extraRow = document.getElementById('receipt-extra-row');
       if (bill.maintenance && Number(bill.maintenance) > 0) {
@@ -1649,13 +1393,9 @@
       }
 
       document.getElementById('receipt-grand-val').innerText = `${currency}${Number(bill.grandTotal).toLocaleString()}`;
-      
-      const metaEl = document.getElementById('receipt-pay-meta');
-      if (bill.status === 'Paid') {
-        metaEl.innerText = `Paid via ${bill.paymentMode || 'Cash'} on ${bill.paidDate || 'today'}`;
-      } else {
-        metaEl.innerText = `Status: Payment is pending`;
-      }
+
+      const meta = document.getElementById('receipt-pay-meta');
+      meta.innerText = bill.status === 'Paid' ? `Paid via ${bill.paymentMode || 'Cash'} on ${bill.paidDate || 'today'}` : 'Payment is pending';
 
       document.getElementById('receipt-modal').classList.remove('hidden');
       document.getElementById('receipt-modal').classList.add('flex');
@@ -1666,7 +1406,7 @@
       document.getElementById('receipt-modal').classList.remove('flex');
     }
 
-    function shareViaWhatsApp() {
+    function shareDirectWhatsApp() {
       if (!state.currentReceiptData) return;
       const { bill, tenant } = state.currentReceiptData;
       const currency = state.settings.currency || '₹';
@@ -1675,27 +1415,40 @@
       const monthDate = new Date(y, parseInt(m, 10) - 1, 1);
       const monthStr = monthDate.toLocaleString('default', { month: 'long', year: 'numeric' });
 
-      // Generate neat WhatsApp friendly text
       const msg = 
 `🏡 *${state.settings.propertyName || 'Rental Receipt'}*
 📅 *Bill for: ${monthStr}*
-━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━
 👤 *Tenant:* ${tenant.name} (${tenant.room})
-💵 *Base Room Rent:* ${currency}${bill.rent}
-⚡ *Electricity Bill:* ${currency}${bill.electricityTotal}
-   • Meter Reading: ${bill.prevMeter} to ${bill.currMeter}
-   • Units: ${bill.units} units × ${currency}${bill.unitRate}
-${bill.maintenance > 0 ? `💧 *Other/Maintenance:* ${currency}${bill.maintenance}\n` : ''}━━━━━━━━━━━━━━━━━
-💰 *Total Amount:* ${currency}${bill.grandTotal}
+💵 *Base Rent:* ${currency}${bill.rent}
+⚡ *Electricity:* ${currency}${bill.electricityTotal}
+   • Readings: ${bill.prevMeter} to ${bill.currMeter}
+   • Units: ${bill.units} u × ${currency}${bill.unitRate}
+${bill.maintenance > 0 ? `💧 *Other/Water:* ${currency}${bill.maintenance}\n` : ''}━━━━━━━━━━━━━━━━━━
+💰 *Total Due:* ${currency}${bill.grandTotal}
 📌 *Status:* ${bill.status === 'Paid' ? `PAID (${bill.paymentMode || 'Cash'})` : 'PENDING'}
-━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━
 Thank you! 🙏`;
 
-      copyToClipboardFallback(msg);
-      showToast("Receipt copied! Paste it in WhatsApp chat", "success");
+      // Copy text fallback
+      copyToClipboard(msg);
+
+      // Clean phone number for WhatsApp
+      let cleanPhone = (tenant.phone || '').replace(/[^0-9]/g, '');
+      let waUrl = '';
+
+      if (cleanPhone.length >= 10) {
+        if (cleanPhone.length === 10) cleanPhone = '91' + cleanPhone; // India country code default if 10 digits
+        waUrl = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(msg)}`;
+      } else {
+        waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
+      }
+
+      window.open(waUrl, '_blank');
+      showToast("Opening WhatsApp...", "success");
     }
 
-    function copyToClipboardFallback(text) {
+    function copyToClipboard(text) {
       const textarea = document.createElement("textarea");
       textarea.value = text;
       textarea.style.position = "fixed";
@@ -1705,101 +1458,96 @@ Thank you! 🙏`;
       textarea.select();
       try {
         document.execCommand('copy');
-      } catch (err) {
-        console.error('Fallback: Oops, unable to copy', err);
+      } catch (e) {
+        console.error(e);
       }
       document.body.removeChild(textarea);
     }
 
+    /* Settings */
     function applySettingsToUI() {
       const curr = state.settings.currency || '₹';
       document.querySelectorAll('.currency-symbol').forEach(el => el.innerText = curr);
-
       const rateInput = document.getElementById('setting-default-rate');
       if (rateInput) rateInput.value = state.settings.defaultUnitRate || 8;
-
       const currSelect = document.getElementById('setting-currency');
       if (currSelect) currSelect.value = curr;
-
       const propInput = document.getElementById('setting-property-name');
-      if (propInput) propInput.value = state.settings.propertyName || '';
+      if (propInput) propInput.value = state.settings.propertyName || "Mom's Rental House";
+      const headerTitle = document.getElementById('header-app-title');
+      if (headerTitle) headerTitle.innerText = state.settings.propertyName || "Mom's Rent Book";
     }
 
     function updateSettings() {
       state.settings.currency = document.getElementById('setting-currency').value;
       state.settings.defaultUnitRate = parseFloat(document.getElementById('setting-default-rate').value) || 8;
       state.settings.propertyName = document.getElementById('setting-property-name').value.trim() || "Mom's Rental House";
-      
-      saveAllToStorage();
+
+      saveStorageData();
       applySettingsToUI();
       renderDashboard();
-      renderHistoryTable();
+      renderHistoryList();
       renderTenants();
-      showToast("Settings updated!", "success");
+      showToast("Settings saved!", "success");
     }
 
+    /* Clear all data intentionally */
+    function clearAllDataConfirm() {
+      showConfirmModal("Reset All Records?", "This will delete all tenants and bills permanently.", () => {
+        state.tenants = [];
+        state.bills = [];
+        saveStorageData();
+        populateTenantDropdowns();
+        renderTenants();
+        renderDashboard();
+        renderHistoryList();
+        showToast("All data cleared", "info");
+      });
+    }
+
+    /* CSV Export */
     function exportToCSV() {
       if (state.bills.length === 0) {
-        showToast("No bill records to export!", "warning");
+        showToast("No bills to export!", "warning");
         return;
       }
 
-      let csv = "Month,Room,Tenant Name,Base Rent,Prev Meter,Curr Meter,Units,Unit Rate,Electricity Bill,Other Charges,Total Bill,Status,Paid Date,Payment Mode,Notes\n";
-
+      let csv = "Month,Room,Tenant,Base Rent,Prev Meter,Curr Meter,Units,Rate,Power Bill,Other,Total,Status,Paid Date,Payment Mode,Notes\n";
       state.bills.forEach(b => {
         const tenant = state.tenants.find(t => t.id === b.tenantId) || { room: 'N/A', name: 'N/A' };
-        const row = [
-          `"${b.month}"`,
-          `"${tenant.room.replace(/"/g, '""')}"`,
-          `"${tenant.name.replace(/"/g, '""')}"`,
-          b.rent,
-          b.prevMeter,
-          b.currMeter,
-          b.units,
-          b.unitRate,
-          b.electricityTotal,
-          b.maintenance || 0,
-          b.grandTotal,
-          `"${b.status}"`,
-          `"${b.paidDate || ''}"`,
-          `"${b.paymentMode || ''}"`,
-          `"${(b.notes || '').replace(/"/g, '""')}"`
-        ];
-        csv += row.join(",") + "\n";
+        csv += `"${b.month}","${tenant.room}","${tenant.name}",${b.rent},${b.prevMeter},${b.currMeter},${b.units},${b.unitRate},${b.electricityTotal},${b.maintenance||0},${b.grandTotal},"${b.status}","${b.paidDate||''}","${b.paymentMode||''}","${(b.notes||'').replace(/"/g, '""')}"\n`;
       });
 
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `rent_and_electricity_records_${new Date().toISOString().slice(0, 10)}.csv`;
+      a.download = `moms_rent_records.csv`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      showToast("CSV Downloaded!", "success");
+      showToast("CSV file downloaded!", "success");
     }
 
+    /* JSON Backup & Restore */
     function exportJSONBackup() {
-      const dataToSave = {
-        version: 1,
-        date: new Date().toISOString(),
+      const data = {
         tenants: state.tenants,
         bills: state.bills,
-        settings: state.settings
+        settings: state.settings,
+        version: 3
       };
-
-      const jsonStr = JSON.stringify(dataToSave, null, 2);
-      const blob = new Blob([jsonStr], { type: "application/json" });
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `moms_rent_book_backup_${new Date().toISOString().slice(0, 10)}.json`;
+      a.download = `mom_rent_backup_${new Date().toISOString().slice(0, 10)}.json`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      showToast("Backup saved to your device!", "success");
+      showToast("Backup saved to phone!", "success");
     }
 
     function importJSONBackup(e) {
@@ -1810,58 +1558,55 @@ Thank you! 🙏`;
       reader.onload = function(evt) {
         try {
           const parsed = JSON.parse(evt.target.result);
-          if (parsed && parsed.tenants && parsed.bills) {
+          if (parsed && Array.isArray(parsed.tenants)) {
             state.tenants = parsed.tenants;
-            state.bills = parsed.bills;
+            state.bills = parsed.bills || [];
             if (parsed.settings) state.settings = { ...state.settings, ...parsed.settings };
-            
-            saveAllToStorage();
+
+            saveStorageData();
             applySettingsToUI();
             populateTenantDropdowns();
             renderDashboard();
-            renderHistoryTable();
+            renderHistoryList();
             renderTenants();
-            showToast("Backup restored successfully!", "success");
+            showToast("Backup restored!", "success");
           } else {
-            showToast("Invalid backup file format.", "error");
+            showToast("Invalid backup file", "error");
           }
         } catch (err) {
-          console.error(err);
-          showToast("Failed to read file.", "error");
+          showToast("Failed to parse file", "error");
         }
       };
       reader.readAsText(file);
       e.target.value = '';
     }
 
+    /* Custom Toast & Confirm */
     function showToast(message, type = 'info') {
       const container = document.getElementById('toast-container');
       const toast = document.createElement('div');
-      toast.className = `pointer-events-auto px-4 py-3 rounded-2xl shadow-xl flex items-center gap-3 text-sm font-semibold text-white transition-all transform duration-300 translate-y-2 opacity-0`;
+      toast.className = `p-3 rounded-2xl shadow-xl flex items-center gap-2.5 text-xs font-bold text-white transition-all transform duration-300 -translate-y-2 opacity-0`;
 
       if (type === 'success') {
         toast.classList.add('bg-emerald-600');
-        toast.innerHTML = `<i class="fa-solid fa-circle-check text-lg"></i> <span>${escapeHtml(message)}</span>`;
+        toast.innerHTML = `<i class="fa-solid fa-circle-check text-base"></i> <span>${escapeHtml(message)}</span>`;
       } else if (type === 'error') {
         toast.classList.add('bg-rose-600');
-        toast.innerHTML = `<i class="fa-solid fa-circle-xmark text-lg"></i> <span>${escapeHtml(message)}</span>`;
-      } else if (type === 'warning') {
-        toast.classList.add('bg-amber-600');
-        toast.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-lg"></i> <span>${escapeHtml(message)}</span>`;
+        toast.innerHTML = `<i class="fa-solid fa-circle-xmark text-base"></i> <span>${escapeHtml(message)}</span>`;
       } else {
         toast.classList.add('bg-slate-800');
-        toast.innerHTML = `<i class="fa-solid fa-info-circle text-lg"></i> <span>${escapeHtml(message)}</span>`;
+        toast.innerHTML = `<i class="fa-solid fa-circle-info text-base"></i> <span>${escapeHtml(message)}</span>`;
       }
 
       container.appendChild(toast);
       setTimeout(() => {
-        toast.classList.remove('translate-y-2', 'opacity-0');
-      }, 50);
+        toast.classList.remove('-translate-y-2', 'opacity-0');
+      }, 30);
 
       setTimeout(() => {
-        toast.classList.add('opacity-0', 'translate-y-2');
+        toast.classList.add('opacity-0', '-translate-y-2');
         setTimeout(() => toast.remove(), 300);
-      }, 3500);
+      }, 3000);
     }
 
     function showConfirmModal(title, message, onConfirm) {
@@ -1883,16 +1628,15 @@ Thank you! 🙏`;
         cleanup();
         if (onConfirm) onConfirm();
       };
-
       cancelBtn.onclick = cleanup;
 
       modal.classList.remove('hidden');
       modal.classList.add('flex');
     }
 
-    function escapeHtml(string) {
-      if (!string) return '';
-      return String(string)
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
