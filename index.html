@@ -36,11 +36,10 @@
   </script>
 
   <style>
-    /* Mobile app container styling */
     body {
       -webkit-tap-highlight-color: transparent;
       user-select: none;
-      background-color: #0f172a; /* Slate 900 background on desktop frames the phone */
+      background-color: #0f172a;
     }
     .mobile-screen {
       max-width: 480px;
@@ -53,7 +52,6 @@
       display: flex;
       flex-direction: column;
     }
-    /* Hide scrollbar for clean app experience */
     .no-scrollbar::-webkit-scrollbar {
       display: none;
     }
@@ -61,7 +59,6 @@
       -ms-overflow-style: none;
       scrollbar-width: none;
     }
-    /* Touch friendly active buttons */
     button:active, .touch-active:active {
       transform: scale(0.97);
       transition: transform 0.1s ease;
@@ -125,7 +122,12 @@
         </div>
         <div>
           <h1 class="text-base font-extrabold leading-tight tracking-tight" id="header-app-title">Mom's Rent Book</h1>
-          <p class="text-[11px] text-emerald-100 font-medium leading-none mt-0.5">Rent & Electricity Ledger</p>
+          <div class="flex items-center gap-1.5 mt-0.5">
+            <span id="sync-status-badge" class="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-emerald-700/90 text-emerald-100 font-medium">
+              <span id="sync-dot" class="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse"></span>
+              <span id="sync-text">Connecting...</span>
+            </span>
+          </div>
         </div>
       </div>
       <div class="flex items-center space-x-1.5">
@@ -138,11 +140,8 @@
     <!-- Main Content Area -->
     <main class="flex-1 overflow-y-auto px-4 py-4 pb-24 space-y-4">
 
-      <!-- ==============================================
-           TAB 1: MOBILE DASHBOARD
-           ============================================== -->
+      <!-- TAB 1: MOBILE DASHBOARD -->
       <section id="view-dashboard" class="space-y-4">
-
         <!-- Month Selector Bar -->
         <div class="bg-white rounded-2xl p-3 border border-slate-200 shadow-xs flex items-center justify-between">
           <div class="flex items-center space-x-2">
@@ -206,9 +205,8 @@
             <span class="text-xs text-slate-400" id="dash-tenant-count">0 Tenants</span>
           </div>
 
-          <!-- Dynamic List of Cards (Mobile Friendly instead of heavy table) -->
           <div id="dashboard-tenants-list" class="space-y-2.5">
-            <!-- Rendered by JS -->
+            <!-- Dynamic Month Cards -->
           </div>
 
           <!-- Empty prompt -->
@@ -225,9 +223,7 @@
         </div>
       </section>
 
-      <!-- ==============================================
-           TAB 2: ADD / EDIT BILL (MOBILE DESIGN)
-           ============================================== -->
+      <!-- TAB 2: ADD / EDIT BILL -->
       <section id="view-record" class="hidden space-y-3.5">
         <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs">
           <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-3">
@@ -241,7 +237,6 @@
           <form id="monthly-bill-form" onsubmit="saveBillEntry(event)" class="space-y-3.5">
             <input type="hidden" id="entry-id" value="">
 
-            <!-- Step 1: Tenant & Month -->
             <div>
               <label class="block text-xs font-bold text-slate-700 mb-1">1. Select Tenant / Room *</label>
               <select id="bill-tenant-select" required onchange="onTenantSelectionChange()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-800 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none">
@@ -254,7 +249,7 @@
               <input type="month" id="bill-month" required onchange="onBillMonthChange()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-800 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none">
             </div>
 
-            <!-- Step 2: Rent & Maintenance -->
+            <!-- Rent & Maintenance -->
             <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2.5">
               <span class="text-xs font-bold text-slate-700 block"><i class="fa-solid fa-house text-emerald-600 mr-1"></i> Rent Details</span>
               <div class="grid grid-cols-2 gap-2">
@@ -269,7 +264,7 @@
               </div>
             </div>
 
-            <!-- Step 3: Electricity Sub-Meter -->
+            <!-- Electricity Sub-Meter -->
             <div class="p-3 bg-amber-50/60 rounded-xl border border-amber-200 space-y-2.5">
               <div class="flex items-center justify-between">
                 <span class="text-xs font-bold text-amber-900"><i class="fa-solid fa-bolt text-amber-500 mr-1"></i> Meter Readings</span>
@@ -303,14 +298,13 @@
               </div>
             </div>
 
-            <!-- Step 4: Total & Payment Status -->
+            <!-- Total & Payment Status -->
             <div class="p-3.5 bg-emerald-50 rounded-xl border border-emerald-200 space-y-3">
               <div class="flex items-center justify-between">
                 <div>
                   <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-800">Total Payable</span>
                   <div class="text-2xl font-black text-emerald-800 leading-tight" id="bill-grand-total">₹0</div>
                 </div>
-                <!-- Status Radios -->
                 <div class="flex gap-1.5 bg-white p-1 rounded-xl border border-emerald-300">
                   <label class="px-2.5 py-1 rounded-lg text-xs font-bold cursor-pointer flex items-center gap-1 text-emerald-800">
                     <input type="radio" name="payment-status" value="Paid" checked onchange="togglePaymentFields()">
@@ -323,7 +317,6 @@
                 </div>
               </div>
 
-              <!-- Payment details -->
               <div id="payment-details-row" class="grid grid-cols-2 gap-2 pt-2 border-t border-emerald-200/60">
                 <div>
                   <label class="text-[10px] font-bold text-emerald-900 block mb-0.5">Paid Date</label>
@@ -345,7 +338,6 @@
               </div>
             </div>
 
-            <!-- Action buttons -->
             <div class="grid grid-cols-2 gap-2 pt-1">
               <button type="button" onclick="cancelBillEdit()" class="w-full py-3 rounded-xl bg-slate-100 font-bold text-slate-700 text-xs">Cancel</button>
               <button type="submit" class="w-full py-3 rounded-xl bg-emerald-600 font-bold text-white text-xs shadow-md shadow-emerald-200">Save Bill</button>
@@ -354,9 +346,7 @@
         </div>
       </section>
 
-      <!-- ==============================================
-           TAB 3: ALL BILLS / RECEIPTS HISTORY
-           ============================================== -->
+      <!-- TAB 3: ALL BILLS / RECEIPTS HISTORY -->
       <section id="view-history" class="hidden space-y-3">
         <div class="flex items-center gap-2">
           <select id="history-status-filter" onchange="renderHistoryList()" class="flex-1 bg-white border border-slate-300 rounded-xl px-2.5 py-2 text-xs font-semibold text-slate-800">
@@ -370,13 +360,11 @@
           </button>
         </div>
 
-        <!-- Search Bar -->
         <div class="relative">
           <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
           <input type="text" id="history-search" oninput="renderHistoryList()" placeholder="Search tenant name or room..." class="w-full bg-white border border-slate-300 rounded-xl pl-8 pr-3 py-2 text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none">
         </div>
 
-        <!-- History cards list -->
         <div id="history-cards-container" class="space-y-2.5">
           <!-- Rendered by JS -->
         </div>
@@ -387,9 +375,7 @@
         </div>
       </section>
 
-      <!-- ==============================================
-           TAB 4: TENANTS LIST (MOBILE CARDS)
-           ============================================== -->
+      <!-- TAB 4: TENANTS LIST -->
       <section id="view-tenants" class="hidden space-y-3">
         <div class="flex items-center justify-between px-1">
           <div>
@@ -417,10 +403,53 @@
         </div>
       </section>
 
-      <!-- ==============================================
-           TAB 5: SETTINGS & BACKUP (MOBILE)
-           ============================================== -->
+      <!-- TAB 5: SETTINGS & BACKUP -->
       <section id="view-settings" class="hidden space-y-3.5">
+        <!-- Cloud Sync & Multi-Device Card -->
+        <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider">Multi-Device Cloud Sync</h3>
+            <span id="settings-cloud-pill" class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+              <i class="fa-solid fa-cloud"></i> Live
+            </span>
+          </div>
+          <p class="text-[11px] text-slate-600 leading-relaxed">
+            Records update in real-time. When your mom enters a bill on her phone, you will immediately see it on yours.
+          </p>
+
+          <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200 space-y-1 text-xs">
+            <div class="flex items-center justify-between text-slate-500 text-[11px]">
+              <span>Connected Account ID:</span>
+              <button onclick="copyUserId()" class="text-emerald-600 hover:underline font-bold">Copy</button>
+            </div>
+            <div id="cloud-user-id" class="font-mono text-[10px] text-slate-700 break-all select-all font-semibold">
+              Connecting...
+            </div>
+          </div>
+
+          <!-- GitHub Pages Custom Firebase Config Form -->
+          <div id="github-config-box" class="pt-2 border-t border-slate-100">
+            <button onclick="toggleGithubConfigForm()" class="text-[11px] text-emerald-700 font-bold flex items-center justify-between w-full">
+              <span><i class="fa-brands fa-github mr-1"></i> Hosting on GitHub Pages?</span>
+              <i id="github-chevron" class="fa-solid fa-chevron-down text-[10px]"></i>
+            </button>
+            <div id="github-config-form" class="hidden mt-2 space-y-2">
+              <p class="text-[10px] text-slate-500">
+                To sync across phones when hosting on GitHub Pages, paste your free Google Firebase config JSON below:
+              </p>
+              <textarea id="custom-firebase-input" rows="3" placeholder='{"apiKey": "...", "projectId": "..."}' class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2 font-mono text-[10px] focus:bg-white focus:outline-none"></textarea>
+              <div class="flex gap-2">
+                <button onclick="saveCustomFirebaseConfig()" class="py-1.5 px-3 bg-emerald-600 text-white rounded-lg text-xs font-bold">
+                  Save & Connect
+                </button>
+                <button onclick="clearCustomFirebaseConfig()" class="py-1.5 px-2 bg-slate-100 text-slate-600 rounded-lg text-xs font-bold">
+                  Reset
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs space-y-3">
           <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider">Property & Rates</h3>
           
@@ -472,7 +501,7 @@
       </section>
     </main>
 
-    <!-- Bottom Navigation Bar (App Experience) -->
+    <!-- Bottom Navigation Bar -->
     <nav class="fixed bottom-0 left-0 right-0 max-w-[480px] mx-auto bg-white border-t border-slate-200 shadow-lg px-2 py-1.5 z-40 flex items-center justify-around">
       <button onclick="switchTab('dashboard')" id="nav-dashboard" class="flex-1 py-1.5 flex flex-col items-center gap-1 text-emerald-600 font-bold text-[10px] transition">
         <i class="fa-solid fa-chart-pie text-base"></i>
@@ -500,9 +529,7 @@
       </button>
     </nav>
 
-    <!-- ==============================================
-         MODAL: ADD / EDIT TENANT
-         ============================================== -->
+    <!-- MODAL: ADD / EDIT TENANT -->
     <div id="tenant-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs hidden items-end sm:items-center justify-center p-3">
       <div class="bg-white rounded-3xl w-full max-w-sm p-4 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
         <div class="flex items-center justify-between border-b border-slate-100 pb-2 mb-3">
@@ -555,12 +582,9 @@
       </div>
     </div>
 
-    <!-- ==============================================
-         MODAL: RECEIPT SLIP & WHATSAPP SHARING
-         ============================================== -->
+    <!-- MODAL: RECEIPT SLIP & WHATSAPP SHARING -->
     <div id="receipt-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs hidden items-center justify-center p-3 overflow-y-auto">
       <div class="bg-white rounded-3xl w-full max-w-sm shadow-2xl border border-slate-200 overflow-hidden my-auto">
-        <!-- Top controls -->
         <div class="bg-slate-900 text-white px-4 py-3 flex items-center justify-between no-print">
           <span class="text-xs font-bold flex items-center gap-1.5">
             <i class="fa-solid fa-receipt text-emerald-400"></i> Monthly Bill Slip
@@ -570,11 +594,10 @@
           </button>
         </div>
 
-        <!-- Receipt Print Section -->
         <div id="print-receipt-section" class="p-5 bg-white text-slate-800 text-xs">
           <div class="text-center border-b-2 border-dashed border-slate-200 pb-3 mb-3">
             <h2 id="receipt-prop-name" class="font-extrabold text-base text-slate-900">Property Slip</h2>
-            <p id="receipt-month-display" class="font-bold text-emerald-700 tracking-wider mt-0.5">MONTH: AUGUST 2026</p>
+            <p id="receipt-month-display" class="font-bold text-emerald-700 tracking-wider mt-0.5">MONTH: CURRENT</p>
             <p id="receipt-date-display" class="text-[10px] text-slate-400 mt-0.5"></p>
           </div>
 
@@ -631,7 +654,6 @@
           <p class="text-[10px] text-center text-slate-400 italic">Thank you!</p>
         </div>
 
-        <!-- WhatsApp & Print Buttons -->
         <div class="p-3 bg-slate-50 border-t border-slate-200 flex gap-2 no-print">
           <button onclick="shareDirectWhatsApp()" class="flex-1 py-2.5 bg-emerald-600 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm">
             <i class="fa-brands fa-whatsapp text-sm"></i> Send to WhatsApp
@@ -645,17 +667,24 @@
 
   </div>
 
-  <script>
-    /* =========================================================================
-       RELIABLE PERSISTENT STORAGE ENGINE (Never resets upon refresh or deletions)
-       ========================================================================= */
-    const STORAGE_KEY_INITIALIZED = 'mom_rent_v3_setup_done';
-    const STORAGE_KEY_TENANTS = 'mom_rent_v3_tenants';
-    const STORAGE_KEY_BILLS = 'mom_rent_v3_bills';
-    const STORAGE_KEY_SETTINGS = 'mom_rent_v3_settings';
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { 
+      getAuth, 
+      signInAnonymously, 
+      signInWithCustomToken 
+    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { 
+      getFirestore, 
+      doc, 
+      setDoc, 
+      deleteDoc, 
+      onSnapshot, 
+      collection 
+    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // Application state
-    let state = {
+    /* Global application state */
+    window.state = {
       tenants: [],
       bills: [],
       settings: {
@@ -664,21 +693,18 @@
         propertyName: "Mom's Rental House"
       },
       currentTab: 'dashboard',
-      currentReceiptData: null
+      currentReceiptData: null,
+      currentUser: null,
+      isOnline: false
     };
 
-    window.addEventListener('DOMContentLoaded', () => {
-      loadStorageData();
+    let db = null;
+    let auth = null;
+    let currentAppId = 'default-app-id';
+    const GITHUB_FIREBASE_STORAGE_KEY = 'mom_rent_github_firebase_config';
 
-      // UI setup
-      setDashboardCurrentMonth();
-      applySettingsToUI();
-      populateTenantDropdowns();
-      renderDashboard();
-      renderHistoryList();
-      renderTenants();
-
-      // Set default dates
+    window.addEventListener('DOMContentLoaded', async () => {
+      // Set default input dates
       const today = new Date().toISOString().split('T')[0];
       const monthInput = document.getElementById('bill-month');
       if (monthInput) monthInput.value = today.slice(0, 7);
@@ -686,29 +712,158 @@
       if (paidDate) paidDate.value = today;
 
       const rateInput = document.getElementById('bill-unit-rate');
-      if (rateInput) rateInput.value = state.settings.defaultUnitRate;
+      if (rateInput) rateInput.value = window.state.settings.defaultUnitRate;
+
+      setDashboardCurrentMonth();
+      loadLocalData();
+      applySettingsToUI();
+      populateTenantDropdowns();
+      renderActiveView();
+
+      await initCloudSync();
     });
 
-    function loadStorageData() {
-      try {
-        const isSetup = localStorage.getItem(STORAGE_KEY_INITIALIZED);
-        const storedTenants = localStorage.getItem(STORAGE_KEY_TENANTS);
-        const storedBills = localStorage.getItem(STORAGE_KEY_BILLS);
-        const storedSettings = localStorage.getItem(STORAGE_KEY_SETTINGS);
+    async function initCloudSync() {
+      updateSyncStatus('connecting', 'Connecting...');
 
-        if (storedSettings) {
-          state.settings = { ...state.settings, ...JSON.parse(storedSettings) };
+      try {
+        currentAppId = typeof __app_id !== 'undefined' ? __app_id : 'moms-rent-book';
+
+        let firebaseConfig = null;
+        if (typeof __firebase_config !== 'undefined') {
+          firebaseConfig = JSON.parse(__firebase_config);
+        } else {
+          const storedConfig = localStorage.getItem(GITHUB_FIREBASE_STORAGE_KEY);
+          if (storedConfig) {
+            try {
+              firebaseConfig = JSON.parse(storedConfig);
+            } catch (e) {
+              console.error("Invalid custom config", e);
+            }
+          }
         }
 
-        if (isSetup === 'true') {
-          // System is marked as setup. We strictly read user's saved data (even if empty!)
-          // WE NEVER RESTORE DUMMY DATA HERE!
-          state.tenants = storedTenants ? JSON.parse(storedTenants) : [];
-          state.bills = storedBills ? JSON.parse(storedBills) : [];
+        if (!firebaseConfig) {
+          updateSyncStatus('offline', 'Offline (Local Only)');
+          const githubBox = document.getElementById('github-config-box');
+          if (githubBox) {
+            document.getElementById('github-config-form')?.classList.remove('hidden');
+          }
+          return;
+        }
+
+        const app = initializeApp(firebaseConfig);
+        auth = getAuth(app);
+        db = getFirestore(app);
+
+        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+          await signInWithCustomToken(auth, __initial_auth_token);
         } else {
-          // FIRST TIME ONLY EVER: Seed only 1 simple example so mom understands how it looks,
-          // then mark initialized permanently!
-          state.tenants = [
+          await signInAnonymously(auth);
+        }
+
+        window.state.currentUser = auth.currentUser;
+        const uid = window.state.currentUser ? window.state.currentUser.uid : 'connected';
+        
+        const userIdElem = document.getElementById('cloud-user-id');
+        if (userIdElem) userIdElem.innerText = uid;
+
+        updateSyncStatus('online', 'Cloud Synced');
+        window.state.isOnline = true;
+
+        setupRealtimeSubscriptions();
+
+      } catch (err) {
+        console.error("Cloud Sync init error:", err);
+        updateSyncStatus('offline', 'Offline Mode');
+      }
+    }
+
+    function updateSyncStatus(status, text) {
+      const badge = document.getElementById('sync-status-badge');
+      const dot = document.getElementById('sync-dot');
+      const textElem = document.getElementById('sync-text');
+      const pill = document.getElementById('settings-cloud-pill');
+
+      if (textElem) textElem.innerText = text;
+
+      if (status === 'online') {
+        if (badge) badge.className = 'inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-emerald-700/90 text-emerald-100 font-medium';
+        if (dot) dot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse';
+        if (pill) {
+          pill.className = 'text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full flex items-center gap-1';
+          pill.innerHTML = '<i class="fa-solid fa-cloud"></i> Synced';
+        }
+      } else if (status === 'connecting') {
+        if (badge) badge.className = 'inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-amber-600/90 text-amber-100 font-medium';
+        if (dot) dot.className = 'w-1.5 h-1.5 rounded-full bg-amber-200 animate-ping';
+      } else {
+        if (badge) badge.className = 'inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-slate-700 text-slate-300 font-medium';
+        if (dot) dot.className = 'w-1.5 h-1.5 rounded-full bg-slate-400';
+        if (pill) {
+          pill.className = 'text-[10px] bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded-full flex items-center gap-1';
+          pill.innerHTML = '<i class="fa-solid fa-cloud-slash"></i> Offline';
+        }
+      }
+    }
+
+    function setupRealtimeSubscriptions() {
+      if (!window.state.currentUser || !db) return;
+
+      const tenantsCol = collection(db, 'artifacts', currentAppId, 'public', 'data', 'tenants');
+      onSnapshot(tenantsCol, (snapshot) => {
+        const tenants = [];
+        snapshot.forEach(docSnap => {
+          tenants.push({ id: docSnap.id, ...docSnap.data() });
+        });
+        window.state.tenants = tenants;
+        localStorage.setItem('mom_rent_v3_tenants', JSON.stringify(tenants));
+        populateTenantDropdowns();
+        renderActiveView();
+      }, (error) => {
+        console.error("Tenants subscription error:", error);
+      });
+
+      const billsCol = collection(db, 'artifacts', currentAppId, 'public', 'data', 'bills');
+      onSnapshot(billsCol, (snapshot) => {
+        const bills = [];
+        snapshot.forEach(docSnap => {
+          bills.push({ id: docSnap.id, ...docSnap.data() });
+        });
+        window.state.bills = bills;
+        localStorage.setItem('mom_rent_v3_bills', JSON.stringify(bills));
+        renderActiveView();
+      }, (error) => {
+        console.error("Bills subscription error:", error);
+      });
+
+      const settingsRef = doc(db, 'artifacts', currentAppId, 'public', 'data', 'settings', 'global');
+      onSnapshot(settingsRef, (docSnap) => {
+        if (docSnap.exists()) {
+          window.state.settings = { ...window.state.settings, ...docSnap.data() };
+          localStorage.setItem('mom_rent_v3_settings', JSON.stringify(window.state.settings));
+          applySettingsToUI();
+          renderActiveView();
+        }
+      }, (error) => {
+        console.error("Settings subscription error:", error);
+      });
+    }
+
+    function loadLocalData() {
+      try {
+        const isSetup = localStorage.getItem('mom_rent_v3_setup_done');
+        const t = localStorage.getItem('mom_rent_v3_tenants');
+        const b = localStorage.getItem('mom_rent_v3_bills');
+        const s = localStorage.getItem('mom_rent_v3_settings');
+        if (s) window.state.settings = { ...window.state.settings, ...JSON.parse(s) };
+
+        if (isSetup === 'true') {
+          window.state.tenants = t ? JSON.parse(t) : [];
+          window.state.bills = b ? JSON.parse(b) : [];
+        } else {
+          // Initialize once with a single sample tenant
+          window.state.tenants = [
             {
               id: 't_demo_1',
               room: 'Room 101',
@@ -720,35 +875,248 @@
               deposit: 14000
             }
           ];
-          state.bills = [];
-          localStorage.setItem(STORAGE_KEY_INITIALIZED, 'true');
-          saveStorageData();
+          window.state.bills = [];
+          localStorage.setItem('mom_rent_v3_setup_done', 'true');
+          saveLocalData();
         }
-      } catch (err) {
-        console.error("Storage load error:", err);
+      } catch (e) {
+        console.error("Local load error:", e);
       }
     }
 
-    function saveStorageData() {
+    function saveLocalData() {
       try {
-        localStorage.setItem(STORAGE_KEY_INITIALIZED, 'true');
-        localStorage.setItem(STORAGE_KEY_TENANTS, JSON.stringify(state.tenants));
-        localStorage.setItem(STORAGE_KEY_BILLS, JSON.stringify(state.bills));
-        localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(state.settings));
-      } catch (err) {
-        console.error("Storage save failed:", err);
-        showToast("Storage error on device", "error");
+        localStorage.setItem('mom_rent_v3_setup_done', 'true');
+        localStorage.setItem('mom_rent_v3_tenants', JSON.stringify(window.state.tenants));
+        localStorage.setItem('mom_rent_v3_bills', JSON.stringify(window.state.bills));
+        localStorage.setItem('mom_rent_v3_settings', JSON.stringify(window.state.settings));
+      } catch (e) {
+        console.error("Save local error:", e);
       }
     }
 
-    /* Navigation between mobile tabs */
-    function switchTab(tabId) {
-      state.currentTab = tabId;
+    function renderActiveView() {
+      renderDashboard();
+      renderHistoryList();
+      renderTenants();
+    }
+
+    window.saveTenant = async function(e) {
+      e.preventDefault();
+      const id = document.getElementById('tenant-id').value;
+      const room = document.getElementById('t-room').value.trim();
+      const name = document.getElementById('t-name').value.trim();
+      const phone = document.getElementById('t-phone').value.trim();
+      const rent = parseFloat(document.getElementById('t-rent').value) || 0;
+      const meterReading = parseFloat(document.getElementById('t-meter').value) || 0;
+      const deposit = parseFloat(document.getElementById('t-deposit').value) || 0;
+
+      const tenantId = id || ('t_' + Date.now());
+      const tenantData = {
+        room, 
+        name, 
+        phone, 
+        rent, 
+        meterReading, 
+        deposit,
+        updatedAt: new Date().toISOString()
+      };
+
+      if (!id) {
+        tenantData.startDate = new Date().toISOString().split('T')[0];
+      }
+
+      if (window.state.isOnline && db && window.state.currentUser) {
+        try {
+          await setDoc(doc(db, 'artifacts', currentAppId, 'public', 'data', 'tenants', tenantId), tenantData, { merge: true });
+          showToast(id ? "Tenant updated across devices!" : "New tenant added to cloud!", "success");
+        } catch (err) {
+          console.error("Cloud tenant save failed", err);
+          showToast("Failed to save to cloud", "error");
+        }
+      } else {
+        const existingIdx = window.state.tenants.findIndex(t => t.id === tenantId);
+        if (existingIdx !== -1) {
+          window.state.tenants[existingIdx] = { ...window.state.tenants[existingIdx], ...tenantData };
+        } else {
+          window.state.tenants.push({ id: tenantId, ...tenantData });
+        }
+        saveLocalData();
+        populateTenantDropdowns();
+        renderActiveView();
+        showToast("Saved to phone", "info");
+      }
+
+      closeTenantModal();
+    };
+
+    window.deleteTenantConfirm = function(tenantId) {
+      const tenant = window.state.tenants.find(t => t.id === tenantId);
+      const name = tenant ? tenant.name : "tenant";
+
+      showConfirmModal("Delete " + name + "?", "This will remove the tenant from all synced phones.", async () => {
+        if (window.state.isOnline && db && window.state.currentUser) {
+          try {
+            await deleteDoc(doc(db, 'artifacts', currentAppId, 'public', 'data', 'tenants', tenantId));
+            showToast("Tenant deleted on all devices", "info");
+          } catch (err) {
+            console.error("Cloud delete failed", err);
+            showToast("Cloud delete failed", "error");
+          }
+        } else {
+          window.state.tenants = window.state.tenants.filter(t => t.id !== tenantId);
+          saveLocalData();
+          populateTenantDropdowns();
+          renderActiveView();
+          showToast("Tenant deleted", "info");
+        }
+      });
+    };
+
+    window.saveBillEntry = async function(e) {
+      e.preventDefault();
+
+      const editId = document.getElementById('entry-id').value;
+      const tenantId = document.getElementById('bill-tenant-select').value;
+      const month = document.getElementById('bill-month').value;
+
+      if (!tenantId) {
+        showToast("Please choose a tenant", "error");
+        return;
+      }
+      if (!month) {
+        showToast("Please select a month", "error");
+        return;
+      }
+
+      const rent = parseFloat(document.getElementById('bill-rent').value) || 0;
+      const maintenance = parseFloat(document.getElementById('bill-maintenance').value) || 0;
+      const prevMeter = parseFloat(document.getElementById('bill-prev-meter').value) || 0;
+      const currMeter = parseFloat(document.getElementById('bill-curr-meter').value) || 0;
+      const unitRate = parseFloat(document.getElementById('bill-unit-rate').value) || 0;
+      const units = Math.max(0, currMeter - prevMeter);
+      const electricityTotal = Math.round(units * unitRate * 100) / 100;
+      const grandTotal = Math.round((rent + maintenance + electricityTotal) * 100) / 100;
+      const status = document.querySelector('input[name="payment-status"]:checked').value;
+      const paidDate = document.getElementById('bill-paid-date').value;
+      const paymentMode = document.getElementById('bill-paid-mode').value;
+      const notes = document.getElementById('bill-notes').value.trim();
+
+      const existing = window.state.bills.find(b => b.tenantId === tenantId && b.month === month);
+      const billId = editId || (existing ? existing.id : 'b_' + Date.now());
+
+      const billData = {
+        tenantId, month, rent, maintenance, prevMeter, currMeter,
+        units, unitRate, electricityTotal, grandTotal, status,
+        paidDate: status === 'Paid' ? paidDate : '',
+        paymentMode: status === 'Paid' ? paymentMode : '',
+        notes,
+        updatedAt: new Date().toISOString()
+      };
+
+      if (window.state.isOnline && db && window.state.currentUser) {
+        try {
+          await setDoc(doc(db, 'artifacts', currentAppId, 'public', 'data', 'bills', billId), billData, { merge: true });
+          showToast("Bill synced to all devices!", "success");
+        } catch (err) {
+          console.error("Cloud bill save failed", err);
+          showToast("Failed to sync bill", "error");
+        }
+      } else {
+        const idx = window.state.bills.findIndex(b => b.id === billId);
+        if (idx !== -1) {
+          window.state.bills[idx] = { id: billId, ...billData };
+        } else {
+          window.state.bills.unshift({ id: billId, ...billData });
+        }
+        saveLocalData();
+        renderActiveView();
+        showToast("Bill saved successfully", "info");
+      }
+
+      resetBillForm();
+      switchTab('dashboard');
+    };
+
+    window.toggleBillStatus = async function(billId) {
+      const bill = window.state.bills.find(b => b.id === billId);
+      if (!bill) return;
+
+      const newStatus = bill.status === 'Paid' ? 'Pending' : 'Paid';
+      const newPaidDate = newStatus === 'Paid' ? new Date().toISOString().split('T')[0] : '';
+      const newMode = newStatus === 'Paid' ? (bill.paymentMode || 'Cash') : '';
+
+      if (window.state.isOnline && db && window.state.currentUser) {
+        try {
+          await setDoc(doc(db, 'artifacts', currentAppId, 'public', 'data', 'bills', billId), {
+            status: newStatus,
+            paidDate: newPaidDate,
+            paymentMode: newMode,
+            updatedAt: new Date().toISOString()
+          }, { merge: true });
+          showToast("Marked as " + newStatus + "!", "success");
+        } catch (err) {
+          console.error("Toggle status failed", err);
+        }
+      } else {
+        bill.status = newStatus;
+        bill.paidDate = newPaidDate;
+        bill.paymentMode = newMode;
+        saveLocalData();
+        renderActiveView();
+        showToast("Marked as " + newStatus, "info");
+      }
+    };
+
+    window.deleteBillConfirm = function(billId) {
+      showConfirmModal("Delete Bill?", "Are you sure you want to delete this bill record?", async () => {
+        if (window.state.isOnline && db && window.state.currentUser) {
+          try {
+            await deleteDoc(doc(db, 'artifacts', currentAppId, 'public', 'data', 'bills', billId));
+            showToast("Bill deleted from cloud", "info");
+          } catch (err) {
+            console.error("Cloud bill delete failed", err);
+          }
+        } else {
+          window.state.bills = window.state.bills.filter(b => b.id !== billId);
+          saveLocalData();
+          renderActiveView();
+          showToast("Bill deleted", "info");
+        }
+      });
+    };
+
+    window.updateSettings = async function() {
+      const currency = document.getElementById('setting-currency').value;
+      const defaultUnitRate = parseFloat(document.getElementById('setting-default-rate').value) || 8;
+      const propertyName = document.getElementById('setting-property-name').value.trim() || "Mom's Rental House";
+
+      const updatedSettings = { currency, defaultUnitRate, propertyName };
+      window.state.settings = updatedSettings;
+
+      if (window.state.isOnline && db && window.state.currentUser) {
+        try {
+          await setDoc(doc(db, 'artifacts', currentAppId, 'public', 'data', 'settings', 'global'), updatedSettings, { merge: true });
+          showToast("Settings updated on all devices!", "success");
+        } catch (err) {
+          console.error("Settings sync error", err);
+        }
+      } else {
+        saveLocalData();
+        showToast("Settings saved locally", "success");
+      }
+
+      applySettingsToUI();
+      renderActiveView();
+    };
+
+    window.switchTab = function(tabId) {
+      window.state.currentTab = tabId;
       const tabs = ['dashboard', 'record', 'history', 'tenants', 'settings'];
 
       tabs.forEach(t => {
-        const view = document.getElementById(`view-${t}`);
-        const nav = document.getElementById(`nav-${t}`);
+        const view = document.getElementById('view-' + t);
+        const nav = document.getElementById('nav-' + t);
         if (view) view.classList.toggle('hidden', t !== tabId);
         if (nav) {
           if (t === tabId) {
@@ -763,25 +1131,25 @@
       if (tabId === 'history') renderHistoryList();
       if (tabId === 'tenants') renderTenants();
       window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    };
 
-    function setDashboardCurrentMonth() {
+    window.setDashboardCurrentMonth = function() {
       const now = new Date();
       const yr = now.getFullYear();
       const m = String(now.getMonth() + 1).padStart(2, '0');
       const input = document.getElementById('dashboard-month-filter');
-      if (input) input.value = `${yr}-${m}`;
+      if (input) input.value = yr + '-' + m;
       renderDashboard();
-    }
+    };
 
-    /* Render Mobile Dashboard */
-    function renderDashboard() {
+    window.renderDashboard = function() {
       const monthVal = document.getElementById('dashboard-month-filter')?.value || new Date().toISOString().slice(0, 7);
-      const currency = state.settings.currency || '₹';
+      const currency = window.state.settings.currency || '₹';
 
-      document.getElementById('dash-tenant-count').innerText = `${state.tenants.length} Tenants`;
+      const dashTenantCount = document.getElementById('dash-tenant-count');
+      if (dashTenantCount) dashTenantCount.innerText = window.state.tenants.length + ' Tenants';
 
-      const monthBills = state.bills.filter(b => b.month === monthVal);
+      const monthBills = window.state.bills.filter(b => b.month === monthVal);
 
       let billed = 0, received = 0, pending = 0, units = 0, elecAmount = 0;
       let paidCount = 0, pendingCount = 0;
@@ -800,28 +1168,35 @@
         }
       });
 
-      document.getElementById('stat-total-billed').innerText = `${currency}${billed.toLocaleString()}`;
-      document.getElementById('stat-total-received').innerText = `${currency}${received.toLocaleString()}`;
-      document.getElementById('stat-paid-count').innerText = `${paidCount} paid`;
+      const statBilled = document.getElementById('stat-total-billed');
+      if (statBilled) statBilled.innerText = currency + billed.toLocaleString();
+      const statReceived = document.getElementById('stat-total-received');
+      if (statReceived) statReceived.innerText = currency + received.toLocaleString();
+      const statPaidCount = document.getElementById('stat-paid-count');
+      if (statPaidCount) statPaidCount.innerText = paidCount + ' paid';
 
-      document.getElementById('stat-total-pending').innerText = `${currency}${pending.toLocaleString()}`;
-      document.getElementById('stat-pending-count').innerText = `${pendingCount} pending`;
+      const statPending = document.getElementById('stat-total-pending');
+      if (statPending) statPending.innerText = currency + pending.toLocaleString();
+      const statPendingCount = document.getElementById('stat-pending-count');
+      if (statPendingCount) statPendingCount.innerText = pendingCount + ' pending';
 
-      document.getElementById('stat-total-units').innerHTML = `${units.toLocaleString()} <span class="text-xs font-normal">units</span>`;
-      document.getElementById('stat-power-amt').innerText = `${currency}${elecAmount.toLocaleString()} power bill`;
+      const statUnits = document.getElementById('stat-total-units');
+      if (statUnits) statUnits.innerHTML = units.toLocaleString() + ' <span class="text-xs font-normal">units</span>';
+      const statPowerAmt = document.getElementById('stat-power-amt');
+      if (statPowerAmt) statPowerAmt.innerText = currency + elecAmount.toLocaleString() + ' power bill';
 
-      // Render cards
       const container = document.getElementById('dashboard-tenants-list');
       const emptyMsg = document.getElementById('dash-empty-message');
+      if (!container) return;
       container.innerHTML = '';
 
-      if (state.tenants.length === 0) {
-        emptyMsg.classList.remove('hidden');
+      if (window.state.tenants.length === 0) {
+        if (emptyMsg) emptyMsg.classList.remove('hidden');
         return;
       }
-      emptyMsg.classList.add('hidden');
+      if (emptyMsg) emptyMsg.classList.add('hidden');
 
-      state.tenants.forEach(tenant => {
+      window.state.tenants.forEach(tenant => {
         const bill = monthBills.find(b => b.tenantId === tenant.id);
         const card = document.createElement('div');
         card.className = 'bg-white rounded-2xl p-3.5 border border-slate-200 shadow-xs space-y-2.5';
@@ -870,7 +1245,6 @@
             </div>
           `;
         } else {
-          // Bill not yet created for this month
           card.innerHTML = `
             <div class="flex items-center justify-between">
               <div>
@@ -894,34 +1268,33 @@
 
         container.appendChild(card);
       });
-    }
+    };
 
-    function populateTenantDropdowns() {
+    window.populateTenantDropdowns = function() {
       const select = document.getElementById('bill-tenant-select');
       if (!select) return;
       const current = select.value;
       select.innerHTML = '<option value="">-- Choose Tenant --</option>';
 
-      state.tenants.forEach(t => {
+      window.state.tenants.forEach(t => {
         const opt = document.createElement('option');
         opt.value = t.id;
-        opt.textContent = `${t.room} - ${t.name}`;
+        opt.textContent = t.room + ' - ' + t.name;
         select.appendChild(opt);
       });
       select.value = current;
-    }
+    };
 
-    function onTenantSelectionChange() {
+    window.onTenantSelectionChange = function() {
       const tenantId = document.getElementById('bill-tenant-select').value;
       if (!tenantId) return;
 
-      const tenant = state.tenants.find(t => t.id === tenantId);
+      const tenant = window.state.tenants.find(t => t.id === tenantId);
       if (!tenant) return;
 
       document.getElementById('bill-rent').value = tenant.rent || 0;
 
-      // Find previous meter reading from latest bill or initial tenant profile
-      const bills = state.bills.filter(b => b.tenantId === tenantId)
+      const bills = window.state.bills.filter(b => b.tenantId === tenantId)
         .sort((a, b) => (b.month > a.month ? 1 : -1));
 
       if (bills.length > 0) {
@@ -931,135 +1304,61 @@
       }
 
       calculateBillTotals();
-    }
+    };
 
-    function onBillMonthChange() {
+    window.onBillMonthChange = function() {
       const tenantId = document.getElementById('bill-tenant-select').value;
       const month = document.getElementById('bill-month').value;
       if (tenantId && month) {
-        const existing = state.bills.find(b => b.tenantId === tenantId && b.month === month);
+        const existing = window.state.bills.find(b => b.tenantId === tenantId && b.month === month);
         if (existing) {
           populateBillFormForEdit(existing);
         }
       }
-    }
+    };
 
-    function calculateBillTotals() {
+    window.calculateBillTotals = function() {
       const rent = parseFloat(document.getElementById('bill-rent').value) || 0;
       const maintenance = parseFloat(document.getElementById('bill-maintenance').value) || 0;
       const prevMeter = parseFloat(document.getElementById('bill-prev-meter').value) || 0;
       const currMeter = parseFloat(document.getElementById('bill-curr-meter').value) || 0;
       const unitRate = parseFloat(document.getElementById('bill-unit-rate').value) || 0;
-      const currency = state.settings.currency || '₹';
+      const currency = window.state.settings.currency || '₹';
 
       const units = Math.max(0, currMeter - prevMeter);
       const electricityTotal = Math.round(units * unitRate * 100) / 100;
       const grandTotal = Math.round((rent + maintenance + electricityTotal) * 100) / 100;
 
-      document.getElementById('bill-calc-units').innerText = units;
-      document.getElementById('bill-electricity-total').innerText = `${currency}${electricityTotal.toLocaleString()}`;
-      document.getElementById('bill-grand-total').innerText = `${currency}${grandTotal.toLocaleString()}`;
-    }
+      const unitsEl = document.getElementById('bill-calc-units');
+      if (unitsEl) unitsEl.innerText = units;
+      const elecEl = document.getElementById('bill-electricity-total');
+      if (elecEl) elecEl.innerText = currency + electricityTotal.toLocaleString();
+      const grandEl = document.getElementById('bill-grand-total');
+      if (grandEl) grandEl.innerText = currency + grandTotal.toLocaleString();
+    };
 
-    function togglePaymentFields() {
-      const isPaid = document.querySelector('input[name="payment-status"]:checked').value === 'Paid';
+    window.togglePaymentFields = function() {
+      const checked = document.querySelector('input[name="payment-status"]:checked');
+      const isPaid = checked ? checked.value === 'Paid' : true;
       const row = document.getElementById('payment-details-row');
       if (row) row.style.opacity = isPaid ? '1' : '0.4';
-    }
+    };
 
-    function saveBillEntry(e) {
-      e.preventDefault();
-
-      const editId = document.getElementById('entry-id').value;
-      const tenantId = document.getElementById('bill-tenant-select').value;
-      const month = document.getElementById('bill-month').value;
-
-      if (!tenantId) {
-        showToast("Please choose a tenant", "error");
-        return;
-      }
-      if (!month) {
-        showToast("Please select a month", "error");
-        return;
-      }
-
-      const rent = parseFloat(document.getElementById('bill-rent').value) || 0;
-      const maintenance = parseFloat(document.getElementById('bill-maintenance').value) || 0;
-      const prevMeter = parseFloat(document.getElementById('bill-prev-meter').value) || 0;
-      const currMeter = parseFloat(document.getElementById('bill-curr-meter').value) || 0;
-      const unitRate = parseFloat(document.getElementById('bill-unit-rate').value) || 0;
-      const units = Math.max(0, currMeter - prevMeter);
-      const electricityTotal = Math.round(units * unitRate * 100) / 100;
-      const grandTotal = Math.round((rent + maintenance + electricityTotal) * 100) / 100;
-      const status = document.querySelector('input[name="payment-status"]:checked').value;
-      const paidDate = document.getElementById('bill-paid-date').value;
-      const paymentMode = document.getElementById('bill-paid-mode').value;
-      const notes = document.getElementById('bill-notes').value.trim();
-
-      if (editId) {
-        const idx = state.bills.findIndex(b => b.id === editId);
-        if (idx !== -1) {
-          state.bills[idx] = {
-            ...state.bills[idx],
-            tenantId, month, rent, maintenance, prevMeter, currMeter,
-            units, unitRate, electricityTotal, grandTotal, status,
-            paidDate: status === 'Paid' ? paidDate : '',
-            paymentMode: status === 'Paid' ? paymentMode : '',
-            notes
-          };
-          showToast("Bill updated!", "success");
-        }
-      } else {
-        const duplicate = state.bills.find(b => b.tenantId === tenantId && b.month === month);
-        if (duplicate) {
-          // Update duplicate
-          duplicate.rent = rent;
-          duplicate.maintenance = maintenance;
-          duplicate.prevMeter = prevMeter;
-          duplicate.currMeter = currMeter;
-          duplicate.units = units;
-          duplicate.unitRate = unitRate;
-          duplicate.electricityTotal = electricityTotal;
-          duplicate.grandTotal = grandTotal;
-          duplicate.status = status;
-          duplicate.paidDate = status === 'Paid' ? paidDate : '';
-          duplicate.paymentMode = status === 'Paid' ? paymentMode : '';
-          duplicate.notes = notes;
-          showToast("Existing bill updated", "info");
-        } else {
-          const newBill = {
-            id: 'b_' + Date.now(),
-            tenantId, month, rent, maintenance, prevMeter, currMeter,
-            units, unitRate, electricityTotal, grandTotal, status,
-            paidDate: status === 'Paid' ? paidDate : '',
-            paymentMode: status === 'Paid' ? paymentMode : '',
-            notes
-          };
-          state.bills.unshift(newBill);
-          showToast("Bill saved successfully!", "success");
-        }
-      }
-
-      saveStorageData();
-      resetBillForm();
-      switchTab('dashboard');
-    }
-
-    function quickCreateBillForTenant(tenantId, month) {
+    window.quickCreateBillForTenant = function(tenantId, month) {
       switchTab('record');
       document.getElementById('bill-tenant-select').value = tenantId;
       document.getElementById('bill-month').value = month;
       onTenantSelectionChange();
-    }
+    };
 
-    function editBill(billId) {
-      const bill = state.bills.find(b => b.id === billId);
+    window.editBill = function(billId) {
+      const bill = window.state.bills.find(b => b.id === billId);
       if (!bill) return;
       populateBillFormForEdit(bill);
       switchTab('record');
-    }
+    };
 
-    function populateBillFormForEdit(bill) {
+    window.populateBillFormForEdit = function(bill) {
       document.getElementById('entry-id').value = bill.id;
       document.getElementById('bill-form-title').innerText = "Edit Bill";
       document.getElementById('bill-tenant-select').value = bill.tenantId;
@@ -1068,7 +1367,7 @@
       document.getElementById('bill-maintenance').value = bill.maintenance || 0;
       document.getElementById('bill-prev-meter').value = bill.prevMeter;
       document.getElementById('bill-curr-meter').value = bill.currMeter;
-      document.getElementById('bill-unit-rate').value = bill.unitRate || state.settings.defaultUnitRate;
+      document.getElementById('bill-unit-rate').value = bill.unitRate || window.state.settings.defaultUnitRate;
 
       const radios = document.getElementsByName('payment-status');
       for (const r of radios) {
@@ -1081,59 +1380,39 @@
 
       calculateBillTotals();
       togglePaymentFields();
-    }
+    };
 
-    function cancelBillEdit() {
+    window.cancelBillEdit = function() {
       resetBillForm();
       switchTab('dashboard');
-    }
+    };
 
-    function resetBillForm() {
+    window.resetBillForm = function() {
       document.getElementById('monthly-bill-form').reset();
       document.getElementById('entry-id').value = '';
       document.getElementById('bill-form-title').innerText = "Enter Monthly Bill";
-      document.getElementById('bill-unit-rate').value = state.settings.defaultUnitRate;
+      document.getElementById('bill-unit-rate').value = window.state.settings.defaultUnitRate;
       const today = new Date().toISOString().split('T')[0];
       document.getElementById('bill-month').value = today.slice(0, 7);
       document.getElementById('bill-paid-date').value = today;
       calculateBillTotals();
-    }
+    };
 
-    function toggleBillStatus(billId) {
-      const bill = state.bills.find(b => b.id === billId);
-      if (!bill) return;
-
-      if (bill.status === 'Paid') {
-        bill.status = 'Pending';
-        bill.paidDate = '';
-        showToast("Marked as Pending", "info");
-      } else {
-        bill.status = 'Paid';
-        bill.paidDate = new Date().toISOString().split('T')[0];
-        if (!bill.paymentMode) bill.paymentMode = 'Cash';
-        showToast("Marked as Paid!", "success");
-      }
-
-      saveStorageData();
-      renderDashboard();
-      renderHistoryList();
-    }
-
-    /* History Tab */
-    function renderHistoryList() {
+    window.renderHistoryList = function() {
       const status = document.getElementById('history-status-filter')?.value || 'ALL';
       const search = (document.getElementById('history-search')?.value || '').toLowerCase().trim();
-      const currency = state.settings.currency || '₹';
+      const currency = window.state.settings.currency || '₹';
 
       const container = document.getElementById('history-cards-container');
       const emptyDiv = document.getElementById('history-empty');
+      if (!container) return;
       container.innerHTML = '';
 
-      let list = state.bills.filter(b => {
+      let list = window.state.bills.filter(b => {
         if (status !== 'ALL' && b.status !== status) return false;
         if (search) {
-          const tenant = state.tenants.find(t => t.id === b.tenantId);
-          const tStr = tenant ? `${tenant.name} ${tenant.room}`.toLowerCase() : '';
+          const tenant = window.state.tenants.find(t => t.id === b.tenantId);
+          const tStr = tenant ? (tenant.name + ' ' + tenant.room).toLowerCase() : '';
           const nStr = (b.notes || '').toLowerCase();
           if (!tStr.includes(search) && !nStr.includes(search) && !b.month.includes(search)) return false;
         }
@@ -1143,17 +1422,17 @@
       list.sort((a, b) => (b.month > a.month ? 1 : -1));
 
       if (list.length === 0) {
-        emptyDiv.classList.remove('hidden');
+        if (emptyDiv) emptyDiv.classList.remove('hidden');
         return;
       }
-      emptyDiv.classList.add('hidden');
+      if (emptyDiv) emptyDiv.classList.add('hidden');
 
       list.forEach(bill => {
-        const tenant = state.tenants.find(t => t.id === bill.tenantId) || { name: 'Unknown', room: 'Room' };
+        const tenant = window.state.tenants.find(t => t.id === bill.tenantId) || { name: 'Unknown', room: 'Room' };
         const isPaid = bill.status === 'Paid';
 
-        const [y, m] = bill.month.split('-');
-        const monthDate = new Date(y, parseInt(m, 10) - 1, 1);
+        const parts = bill.month.split('-');
+        const monthDate = new Date(parts[0], parseInt(parts[1], 10) - 1, 1);
         const formattedMonth = monthDate.toLocaleString('default', { month: 'short', year: 'numeric' });
 
         const card = document.createElement('div');
@@ -1194,33 +1473,23 @@
         `;
         container.appendChild(card);
       });
-    }
+    };
 
-    function deleteBillConfirm(billId) {
-      showConfirmModal("Delete Bill?", "Are you sure you want to delete this bill record?", () => {
-        state.bills = state.bills.filter(b => b.id !== billId);
-        saveStorageData();
-        renderDashboard();
-        renderHistoryList();
-        showToast("Bill deleted", "info");
-      });
-    }
-
-    /* Tenant Management */
-    function renderTenants() {
+    window.renderTenants = function() {
       const container = document.getElementById('tenants-mobile-container');
       const emptyDiv = document.getElementById('tenants-empty');
-      const currency = state.settings.currency || '₹';
+      const currency = window.state.settings.currency || '₹';
+      if (!container) return;
       container.innerHTML = '';
 
-      if (state.tenants.length === 0) {
-        emptyDiv.classList.remove('hidden');
+      if (window.state.tenants.length === 0) {
+        if (emptyDiv) emptyDiv.classList.remove('hidden');
         return;
       }
-      emptyDiv.classList.add('hidden');
+      if (emptyDiv) emptyDiv.classList.add('hidden');
 
-      state.tenants.forEach(tenant => {
-        const tenantBills = state.bills.filter(b => b.tenantId === tenant.id)
+      window.state.tenants.forEach(tenant => {
+        const tenantBills = window.state.bills.filter(b => b.tenantId === tenant.id)
           .sort((a, b) => (b.month > a.month ? 1 : -1));
         const lastReading = tenantBills.length > 0 ? tenantBills[0].currMeter : tenant.meterReading;
 
@@ -1248,7 +1517,7 @@
             </div>
             <div>
               <span class="text-slate-400 block text-[10px]">Deposit:</span>
-              <span class="font-bold text-slate-700">${tenant.deposit ? `${currency}${Number(tenant.deposit).toLocaleString()}` : '-'}</span>
+              <span class="font-bold text-slate-700">${tenant.deposit ? currency + Number(tenant.deposit).toLocaleString() : '-'}</span>
             </div>
           </div>
 
@@ -1268,23 +1537,23 @@
         `;
         container.appendChild(card);
       });
-    }
+    };
 
-    function openTenantModal() {
+    window.openTenantModal = function() {
       document.getElementById('tenant-form').reset();
       document.getElementById('tenant-id').value = '';
       document.getElementById('tenant-modal-title').innerText = "Add Tenant";
       document.getElementById('tenant-modal').classList.remove('hidden');
       document.getElementById('tenant-modal').classList.add('flex');
-    }
+    };
 
-    function closeTenantModal() {
+    window.closeTenantModal = function() {
       document.getElementById('tenant-modal').classList.add('hidden');
       document.getElementById('tenant-modal').classList.remove('flex');
-    }
+    };
 
-    function editTenantModal(id) {
-      const t = state.tenants.find(i => i.id === id);
+    window.editTenantModal = function(id) {
+      const t = window.state.tenants.find(i => i.id === id);
       if (!t) return;
 
       document.getElementById('tenant-id').value = t.id;
@@ -1298,74 +1567,23 @@
 
       document.getElementById('tenant-modal').classList.remove('hidden');
       document.getElementById('tenant-modal').classList.add('flex');
-    }
+    };
 
-    function saveTenant(e) {
-      e.preventDefault();
-      const id = document.getElementById('tenant-id').value;
-      const room = document.getElementById('t-room').value.trim();
-      const name = document.getElementById('t-name').value.trim();
-      const phone = document.getElementById('t-phone').value.trim();
-      const rent = parseFloat(document.getElementById('t-rent').value) || 0;
-      const meterReading = parseFloat(document.getElementById('t-meter').value) || 0;
-      const deposit = parseFloat(document.getElementById('t-deposit').value) || 0;
-
-      if (id) {
-        const idx = state.tenants.findIndex(t => t.id === id);
-        if (idx !== -1) {
-          state.tenants[idx] = { ...state.tenants[idx], room, name, phone, rent, meterReading, deposit };
-          showToast("Tenant updated!", "success");
-        }
-      } else {
-        const newTenant = {
-          id: 't_' + Date.now(),
-          room, name, phone, rent, meterReading, deposit,
-          startDate: new Date().toISOString().split('T')[0]
-        };
-        state.tenants.push(newTenant);
-        showToast("New tenant added!", "success");
-      }
-
-      // THIS PERMANENTLY SAVES TO STORAGE SO IT NEVER RESETS
-      saveStorageData();
-      closeTenantModal();
-      populateTenantDropdowns();
-      renderTenants();
-      renderDashboard();
-    }
-
-    function deleteTenantConfirm(tenantId) {
-      const tenant = state.tenants.find(t => t.id === tenantId);
-      const name = tenant ? tenant.name : "tenant";
-
-      showConfirmModal(`Delete ${name}?`, "This will remove the tenant. Existing saved bills stay in your history.", () => {
-        // Remove tenant
-        state.tenants = state.tenants.filter(t => t.id !== tenantId);
-        // Save immediately - will NOT come back upon refresh!
-        saveStorageData();
-        populateTenantDropdowns();
-        renderTenants();
-        renderDashboard();
-        showToast("Tenant deleted", "info");
-      });
-    }
-
-    /* Receipt & WhatsApp */
-    function openReceipt(billId) {
-      const bill = state.bills.find(b => b.id === billId);
+    window.openReceipt = function(billId) {
+      const bill = window.state.bills.find(b => b.id === billId);
       if (!bill) return;
 
-      const tenant = state.tenants.find(t => t.id === bill.tenantId) || { name: 'Tenant', room: 'Room', phone: '' };
-      const currency = state.settings.currency || '₹';
-      state.currentReceiptData = { bill, tenant };
+      const tenant = window.state.tenants.find(t => t.id === bill.tenantId) || { name: 'Tenant', room: 'Room', phone: '' };
+      const currency = window.state.settings.currency || '₹';
+      window.state.currentReceiptData = { bill, tenant };
 
-      const [y, m] = bill.month.split('-');
-      const monthDate = new Date(y, parseInt(m, 10) - 1, 1);
+      const parts = bill.month.split('-');
+      const monthDate = new Date(parts[0], parseInt(parts[1], 10) - 1, 1);
       const monthStr = monthDate.toLocaleString('default', { month: 'long', year: 'numeric' }).toUpperCase();
 
-      document.getElementById('receipt-prop-name').innerText = state.settings.propertyName || "Rent & Electricity Slip";
-      document.getElementById('receipt-month-display').innerText = `BILLING MONTH: ${monthStr}`;
-      document.getElementById('receipt-date-display').innerText = `Date: ${new Date().toLocaleDateString()}`;
+      document.getElementById('receipt-prop-name').innerText = window.state.settings.propertyName || "Rent & Electricity Slip";
+      document.getElementById('receipt-month-display').innerText = "BILLING MONTH: " + monthStr;
+      document.getElementById('receipt-date-display').innerText = "Date: " + new Date().toLocaleDateString();
 
       document.getElementById('receipt-room').innerText = tenant.room;
       document.getElementById('receipt-name').innerText = tenant.name;
@@ -1379,44 +1597,44 @@
         badge.innerText = "PENDING";
       }
 
-      document.getElementById('receipt-rent-val').innerText = `${currency}${Number(bill.rent).toLocaleString()}`;
-      document.getElementById('receipt-elec-val').innerText = `${currency}${Number(bill.electricityTotal).toLocaleString()}`;
-      document.getElementById('receipt-readings-val').innerText = `${bill.prevMeter} → ${bill.currMeter}`;
-      document.getElementById('receipt-units-val').innerText = `${bill.units} units (@ ${currency}${bill.unitRate}/unit)`;
+      document.getElementById('receipt-rent-val').innerText = currency + Number(bill.rent).toLocaleString();
+      document.getElementById('receipt-elec-val').innerText = currency + Number(bill.electricityTotal).toLocaleString();
+      document.getElementById('receipt-readings-val').innerText = bill.prevMeter + ' → ' + bill.currMeter;
+      document.getElementById('receipt-units-val').innerText = bill.units + ' units (@ ' + currency + bill.unitRate + '/unit)';
 
       const extraRow = document.getElementById('receipt-extra-row');
       if (bill.maintenance && Number(bill.maintenance) > 0) {
         extraRow.classList.remove('hidden');
-        document.getElementById('receipt-extra-val').innerText = `${currency}${Number(bill.maintenance).toLocaleString()}`;
+        document.getElementById('receipt-extra-val').innerText = currency + Number(bill.maintenance).toLocaleString();
       } else {
         extraRow.classList.add('hidden');
       }
 
-      document.getElementById('receipt-grand-val').innerText = `${currency}${Number(bill.grandTotal).toLocaleString()}`;
+      document.getElementById('receipt-grand-val').innerText = currency + Number(bill.grandTotal).toLocaleString();
 
       const meta = document.getElementById('receipt-pay-meta');
-      meta.innerText = bill.status === 'Paid' ? `Paid via ${bill.paymentMode || 'Cash'} on ${bill.paidDate || 'today'}` : 'Payment is pending';
+      meta.innerText = bill.status === 'Paid' ? ("Paid via " + (bill.paymentMode || 'Cash') + " on " + (bill.paidDate || 'today')) : 'Payment is pending';
 
       document.getElementById('receipt-modal').classList.remove('hidden');
       document.getElementById('receipt-modal').classList.add('flex');
-    }
+    };
 
-    function closeReceiptModal() {
+    window.closeReceiptModal = function() {
       document.getElementById('receipt-modal').classList.add('hidden');
       document.getElementById('receipt-modal').classList.remove('flex');
-    }
+    };
 
-    function shareDirectWhatsApp() {
-      if (!state.currentReceiptData) return;
-      const { bill, tenant } = state.currentReceiptData;
-      const currency = state.settings.currency || '₹';
+    window.shareDirectWhatsApp = function() {
+      if (!window.state.currentReceiptData) return;
+      const { bill, tenant } = window.state.currentReceiptData;
+      const currency = window.state.settings.currency || '₹';
 
-      const [y, m] = bill.month.split('-');
-      const monthDate = new Date(y, parseInt(m, 10) - 1, 1);
+      const parts = bill.month.split('-');
+      const monthDate = new Date(parts[0], parseInt(parts[1], 10) - 1, 1);
       const monthStr = monthDate.toLocaleString('default', { month: 'long', year: 'numeric' });
 
       const msg = 
-`🏡 *${state.settings.propertyName || 'Rental Receipt'}*
+`🏡 *${window.state.settings.propertyName || 'Rental Receipt'}*
 📅 *Bill for: ${monthStr}*
 ━━━━━━━━━━━━━━━━━━
 👤 *Tenant:* ${tenant.name} (${tenant.room})
@@ -1430,15 +1648,13 @@ ${bill.maintenance > 0 ? `💧 *Other/Water:* ${currency}${bill.maintenance}\n` 
 ━━━━━━━━━━━━━━━━━━
 Thank you! 🙏`;
 
-      // Copy text fallback
       copyToClipboard(msg);
 
-      // Clean phone number for WhatsApp
       let cleanPhone = (tenant.phone || '').replace(/[^0-9]/g, '');
       let waUrl = '';
 
       if (cleanPhone.length >= 10) {
-        if (cleanPhone.length === 10) cleanPhone = '91' + cleanPhone; // India country code default if 10 digits
+        if (cleanPhone.length === 10) cleanPhone = '91' + cleanPhone;
         waUrl = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(msg)}`;
       } else {
         waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
@@ -1446,7 +1662,44 @@ Thank you! 🙏`;
 
       window.open(waUrl, '_blank');
       showToast("Opening WhatsApp...", "success");
-    }
+    };
+
+    window.toggleGithubConfigForm = function() {
+      const form = document.getElementById('github-config-form');
+      const chevron = document.getElementById('github-chevron');
+      if (form) form.classList.toggle('hidden');
+      if (chevron) chevron.classList.toggle('fa-chevron-up');
+    };
+
+    window.saveCustomFirebaseConfig = function() {
+      const val = document.getElementById('custom-firebase-input').value.trim();
+      if (!val) {
+        showToast("Please enter a valid JSON config", "error");
+        return;
+      }
+      try {
+        JSON.parse(val);
+        localStorage.setItem(GITHUB_FIREBASE_STORAGE_KEY, val);
+        showToast("Firebase Config saved! Reconnecting...", "success");
+        setTimeout(() => location.reload(), 1000);
+      } catch (err) {
+        showToast("Invalid JSON syntax. Please check formatting.", "error");
+      }
+    };
+
+    window.clearCustomFirebaseConfig = function() {
+      localStorage.removeItem(GITHUB_FIREBASE_STORAGE_KEY);
+      showToast("Config reset. Reloading...", "info");
+      setTimeout(() => location.reload(), 800);
+    };
+
+    window.copyUserId = function() {
+      const id = document.getElementById('cloud-user-id')?.innerText || '';
+      if (id) {
+        copyToClipboard(id);
+        showToast("Account ID copied!", "success");
+      }
+    };
 
     function copyToClipboard(text) {
       const textarea = document.createElement("textarea");
@@ -1464,57 +1717,51 @@ Thank you! 🙏`;
       document.body.removeChild(textarea);
     }
 
-    /* Settings */
     function applySettingsToUI() {
-      const curr = state.settings.currency || '₹';
+      const curr = window.state.settings.currency || '₹';
       document.querySelectorAll('.currency-symbol').forEach(el => el.innerText = curr);
       const rateInput = document.getElementById('setting-default-rate');
-      if (rateInput) rateInput.value = state.settings.defaultUnitRate || 8;
+      if (rateInput) rateInput.value = window.state.settings.defaultUnitRate || 8;
       const currSelect = document.getElementById('setting-currency');
       if (currSelect) currSelect.value = curr;
       const propInput = document.getElementById('setting-property-name');
-      if (propInput) propInput.value = state.settings.propertyName || "Mom's Rental House";
+      if (propInput) propInput.value = window.state.settings.propertyName || "Mom's Rental House";
       const headerTitle = document.getElementById('header-app-title');
-      if (headerTitle) headerTitle.innerText = state.settings.propertyName || "Mom's Rent Book";
+      if (headerTitle) headerTitle.innerText = window.state.settings.propertyName || "Mom's Rent Book";
     }
 
-    function updateSettings() {
-      state.settings.currency = document.getElementById('setting-currency').value;
-      state.settings.defaultUnitRate = parseFloat(document.getElementById('setting-default-rate').value) || 8;
-      state.settings.propertyName = document.getElementById('setting-property-name').value.trim() || "Mom's Rental House";
-
-      saveStorageData();
-      applySettingsToUI();
-      renderDashboard();
-      renderHistoryList();
-      renderTenants();
-      showToast("Settings saved!", "success");
-    }
-
-    /* Clear all data intentionally */
-    function clearAllDataConfirm() {
-      showConfirmModal("Reset All Records?", "This will delete all tenants and bills permanently.", () => {
-        state.tenants = [];
-        state.bills = [];
-        saveStorageData();
+    window.clearAllDataConfirm = function() {
+      showConfirmModal("Reset All Records?", "This will delete all tenants and bills across all connected devices.", async () => {
+        if (window.state.isOnline && db && window.state.currentUser) {
+          try {
+            for (const t of window.state.tenants) {
+              await deleteDoc(doc(db, 'artifacts', currentAppId, 'public', 'data', 'tenants', t.id));
+            }
+            for (const b of window.state.bills) {
+              await deleteDoc(doc(db, 'artifacts', currentAppId, 'public', 'data', 'bills', b.id));
+            }
+          } catch (e) {
+            console.error(e);
+          }
+        }
+        window.state.tenants = [];
+        window.state.bills = [];
+        saveLocalData();
         populateTenantDropdowns();
-        renderTenants();
-        renderDashboard();
-        renderHistoryList();
-        showToast("All data cleared", "info");
+        renderActiveView();
+        showToast("All records cleared", "info");
       });
-    }
+    };
 
-    /* CSV Export */
-    function exportToCSV() {
-      if (state.bills.length === 0) {
-        showToast("No bills to export!", "warning");
+    window.exportToCSV = function() {
+      if (window.state.bills.length === 0) {
+        showToast("No bills to export!", "info");
         return;
       }
 
       let csv = "Month,Room,Tenant,Base Rent,Prev Meter,Curr Meter,Units,Rate,Power Bill,Other,Total,Status,Paid Date,Payment Mode,Notes\n";
-      state.bills.forEach(b => {
-        const tenant = state.tenants.find(t => t.id === b.tenantId) || { room: 'N/A', name: 'N/A' };
+      window.state.bills.forEach(b => {
+        const tenant = window.state.tenants.find(t => t.id === b.tenantId) || { room: 'N/A', name: 'N/A' };
         csv += `"${b.month}","${tenant.room}","${tenant.name}",${b.rent},${b.prevMeter},${b.currMeter},${b.units},${b.unitRate},${b.electricityTotal},${b.maintenance||0},${b.grandTotal},"${b.status}","${b.paidDate||''}","${b.paymentMode||''}","${(b.notes||'').replace(/"/g, '""')}"\n`;
       });
 
@@ -1528,14 +1775,13 @@ Thank you! 🙏`;
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
       showToast("CSV file downloaded!", "success");
-    }
+    };
 
-    /* JSON Backup & Restore */
-    function exportJSONBackup() {
+    window.exportJSONBackup = function() {
       const data = {
-        tenants: state.tenants,
-        bills: state.bills,
-        settings: state.settings,
+        tenants: window.state.tenants,
+        bills: window.state.bills,
+        settings: window.state.settings,
         version: 3
       };
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
@@ -1548,44 +1794,51 @@ Thank you! 🙏`;
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
       showToast("Backup saved to phone!", "success");
-    }
+    };
 
-    function importJSONBackup(e) {
+    window.importJSONBackup = async function(e) {
       const file = e.target.files[0];
       if (!file) return;
 
       const reader = new FileReader();
-      reader.onload = function(evt) {
+      reader.onload = async function(evt) {
         try {
           const parsed = JSON.parse(evt.target.result);
           if (parsed && Array.isArray(parsed.tenants)) {
-            state.tenants = parsed.tenants;
-            state.bills = parsed.bills || [];
-            if (parsed.settings) state.settings = { ...state.settings, ...parsed.settings };
-
-            saveStorageData();
-            applySettingsToUI();
-            populateTenantDropdowns();
-            renderDashboard();
-            renderHistoryList();
-            renderTenants();
-            showToast("Backup restored!", "success");
+            if (window.state.isOnline && db && window.state.currentUser) {
+              for (const t of parsed.tenants) {
+                await setDoc(doc(db, 'artifacts', currentAppId, 'public', 'data', 'tenants', t.id), t, { merge: true });
+              }
+              if (parsed.bills) {
+                for (const b of parsed.bills) {
+                  await setDoc(doc(db, 'artifacts', currentAppId, 'public', 'data', 'bills', b.id), b, { merge: true });
+                }
+              }
+            } else {
+              window.state.tenants = parsed.tenants;
+              window.state.bills = parsed.bills || [];
+              if (parsed.settings) window.state.settings = { ...window.state.settings, ...parsed.settings };
+              saveLocalData();
+              populateTenantDropdowns();
+              renderActiveView();
+            }
+            showToast("Backup restored successfully!", "success");
           } else {
             showToast("Invalid backup file", "error");
           }
         } catch (err) {
-          showToast("Failed to parse file", "error");
+          showToast("Failed to parse backup file", "error");
         }
       };
       reader.readAsText(file);
       e.target.value = '';
-    }
+    };
 
-    /* Custom Toast & Confirm */
     function showToast(message, type = 'info') {
       const container = document.getElementById('toast-container');
+      if (!container) return;
       const toast = document.createElement('div');
-      toast.className = `p-3 rounded-2xl shadow-xl flex items-center gap-2.5 text-xs font-bold text-white transition-all transform duration-300 -translate-y-2 opacity-0`;
+      toast.className = 'p-3 rounded-2xl shadow-xl flex items-center gap-2.5 text-xs font-bold text-white transition-all transform duration-300 -translate-y-2 opacity-0';
 
       if (type === 'success') {
         toast.classList.add('bg-emerald-600');
